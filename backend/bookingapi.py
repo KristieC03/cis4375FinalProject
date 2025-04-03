@@ -23,57 +23,59 @@ def home():
     return "<h1> James Andersen Law Firm</h1>"
 
 
-# Get all clients
-@app.route('/api/clients', methods=['GET'])
-def api_captains_all():
+# Get all bookings
+@app.route('/api/booking', methods=['GET'])
+def api_bookings_all():
 
     myCreds = maincreds.Creds()
     conn = create_connection(myCreds.connectionstring, myCreds.username, myCreds.passwd, myCreds.dataBase)
-    sql = "select * from clients"
-    captains = execute_read_query(conn, sql)
-    return jsonify(captains)
+    sql = "select * from booking"
+    bookings = execute_read_query(conn, sql)
+    return jsonify(bookings)
 
 
-# Add a client as POST method
-@app.route('/api/clients', methods=['POST'])
-def api_add_client():
+# Add a booking as POST method
+@app.route('/api/booking', methods=['POST'])
+def api_add_booking():
 
     request_data = request.get_json()
-    new_fname = request_data['fname']
-    new_lname = request_data['lname']
-    new_email = request_data['email']
-    new_phone = request_data['phone']
+    new_client = request_data['Client_ID']
+    new_datetime = request_data['Date_Time_ID']
+    new_status = request_data['Booking_Status']
+    new_approval = request_data['Booking_Approval']
+    new_detail = request_data['Booking_Details']
 
     myCreds = maincreds.Creds()
     conn = create_connection(myCreds.connectionstring, myCreds.username, myCreds.passwd, myCreds.dataBase)
-    sql = "insert into clients (fname, lname, email, phone) values ('%s','%s','%s','%s')" % (new_fname, new_lname, new_email, new_phone)
+    sql = "insert into booking (Client_ID, Date_Time_ID, Booking_Status, Booking_Approval, Booking_Details) values ('%s','%s','%s', '%s', '%s')" % (new_client, new_datetime, new_status, new_approval, new_detail)
 
     execute_query(conn, sql)
-    return "Add new client successfully !"
+    return "Add new booking successfully !"
 
 
-# Update a client as PUT method
-@app.route('/api/clients', methods=['PUT'])
-def api_update_client():
+# Update a booking as PUT method
+@app.route('/api/booking', methods=['PUT'])
+def api_update_booking():
 
     request_data = request.get_json()
     update_id = request_data['id']
-    update_fname = request_data['fname']
-    update_lname = request_data['lname']
-    update_email = request_data['email']
-    update_phone = request_data['phone']
+    update_client = request_data['Client_ID']
+    update_datetime = request_data['Date_Time_ID']
+    update_status = request_data['Booking_Status']
+    update_approval = request_data['Booking_Approval']
+    update_detail = request_data['Booking_Details']
 
     myCreds = maincreds.Creds()
     conn = create_connection(myCreds.connectionstring, myCreds.username, myCreds.passwd, myCreds.dataBase)
-    sql = "update captain set firstname = '%s', lastname = '%s', ranking = '%s', homeplanet = '%s' where id = %s" % (update_fname, update_lname, update_email, update_phone, update_id)
+    sql = "update booking set Client_ID = '%s', Date_Time_ID = '%s', Booking_Status = '%s', Booking_Approval = '%s', Booking_Details = '%s' where id = %s" % (update_client, update_datetime, update_status, update_approval, update_detail, update_id)
 
     execute_query(conn, sql)
-    return f"Captain with Captain ID {update_id} updated successfully !"
+    return f"Booking with Booking ID {update_id} updated successfully !"
 
 
-# Delete a client with DELETE method
-@app.route('/api/clients', methods=['DELETE'])
-def api_delete_client_byID():
+# Delete a booking with DELETE method
+@app.route('/api/booking', methods=['DELETE'])
+def api_delete_booking_byID():
     
 
     request_data = request.get_json()
@@ -81,10 +83,10 @@ def api_delete_client_byID():
     
     myCreds = maincreds.Creds()
     conn = create_connection(myCreds.connectionstring, myCreds.username, myCreds.passwd, myCreds.dataBase)
-    sql = "delete from captain where id = '%s'" % (id_to_delete)
+    sql = "delete from booking where id = '%s'" % (id_to_delete)
     execute_query(conn, sql)
         
-    return "Delete captain request successfully !"
+    return "Delete booking request successfully !"
 
 app.run()
 

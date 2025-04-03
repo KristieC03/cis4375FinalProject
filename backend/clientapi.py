@@ -25,13 +25,13 @@ def home():
 
 # Get all clients
 @app.route('/api/clients', methods=['GET'])
-def api_captains_all():
+def api_clients_all():
 
     myCreds = maincreds.Creds()
     conn = create_connection(myCreds.connectionstring, myCreds.username, myCreds.passwd, myCreds.dataBase)
     sql = "select * from clients"
-    captains = execute_read_query(conn, sql)
-    return jsonify(captains)
+    clients = execute_read_query(conn, sql)
+    return jsonify(clients)
 
 
 # Add a client as POST method
@@ -39,14 +39,16 @@ def api_captains_all():
 def api_add_client():
 
     request_data = request.get_json()
-    new_fname = request_data['fname']
-    new_lname = request_data['lname']
-    new_email = request_data['email']
-    new_phone = request_data['phone']
+    new_fname = request_data['Client_Fname']
+    new_lname = request_data['Client_Lname']
+    new_email = request_data['Client_Email']
+    new_phone = request_data['Client_Phone']
+    # new_date = request_data['Client_Date']
+    # new_time = request_data['Client_Time']
 
     myCreds = maincreds.Creds()
     conn = create_connection(myCreds.connectionstring, myCreds.username, myCreds.passwd, myCreds.dataBase)
-    sql = "insert into clients (fname, lname, email, phone) values ('%s','%s','%s','%s')" % (new_fname, new_lname, new_email, new_phone)
+    sql = "insert into clients (Client_Fname, Client_Lname, Client_Email, Client_Phone) values ('%s','%s','%s','%s','%s','%s')" % (new_fname, new_lname, new_email, new_phone)
 
     execute_query(conn, sql)
     return "Add new client successfully !"
@@ -58,17 +60,19 @@ def api_update_client():
 
     request_data = request.get_json()
     update_id = request_data['id']
-    update_fname = request_data['fname']
-    update_lname = request_data['lname']
-    update_email = request_data['email']
-    update_phone = request_data['phone']
+    new_fname = request_data['Client_Fname']
+    new_lname = request_data['Client_Lname']
+    new_email = request_data['Client_Email']
+    new_phone = request_data['Client_Phone']
+    # new_date = request_data['Client_Date']
+    # new_time = request_data['Client_Time']
 
     myCreds = maincreds.Creds()
     conn = create_connection(myCreds.connectionstring, myCreds.username, myCreds.passwd, myCreds.dataBase)
-    sql = "update captain set firstname = '%s', lastname = '%s', ranking = '%s', homeplanet = '%s' where id = %s" % (update_fname, update_lname, update_email, update_phone, update_id)
+    sql = "update clients set Client_Fname = '%s', Client_Lname = '%s', Client_Email = '%s', Client_Phone = '%s' where id = %s" % (new_fname, new_lname, new_email, new_phone, update_id)
 
     execute_query(conn, sql)
-    return f"Captain with Captain ID {update_id} updated successfully !"
+    return f"Client with Client ID {update_id} updated successfully !"
 
 
 # Delete a client with DELETE method
@@ -81,10 +85,10 @@ def api_delete_client_byID():
     
     myCreds = maincreds.Creds()
     conn = create_connection(myCreds.connectionstring, myCreds.username, myCreds.passwd, myCreds.dataBase)
-    sql = "delete from captain where id = '%s'" % (id_to_delete)
+    sql = "delete from clients where id = '%s'" % (id_to_delete)
     execute_query(conn, sql)
         
-    return "Delete captain request successfully !"
+    return "Delete clients request successfully !"
 
 app.run()
 
