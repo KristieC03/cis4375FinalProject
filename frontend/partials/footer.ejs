@@ -1,27 +1,13 @@
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
 <style>
-  html, body {
-    height: 100%;
-    margin: 0;
-  }
-
-  body {
-    display: flex;
-    flex-direction: column;
-  }
-
-  main {
-    flex: 1;
-  }
-
   .footer {
-  background-color: #404473;
-  color: white;
-  padding: 10px 15px;
-  width: 100%;
-  box-sizing: border-box;
-}
-
+    background-color: #404473;
+    color: white;
+    padding: 10px 15px;
+    width: 100%;
+    box-sizing: border-box;
+    flex-shrink: 0;
+  }
 
   .footer-content {
     display: flex;
@@ -36,9 +22,6 @@
   .footer-left,
   .footer-right {
     flex: 1 1 300px;
-  }
-
-  .footer-left {
     text-align: left;
   }
 
@@ -56,7 +39,7 @@
     text-decoration: underline;
   }
 
-  @media (max-width: 600px) {
+  @media (max-width: 768px) {
     .footer-content {
       flex-direction: column;
       gap: 10px;
@@ -69,6 +52,7 @@
     }
   }
 </style>
+
 
 <footer class="footer">
   <div class="footer-content">
