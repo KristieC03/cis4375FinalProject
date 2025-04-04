@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>About</title>
+    <link href="https://fonts.googleapis.com/css2?family=Josefin+Sans:wght@300;500;700&display=swap" rel="stylesheet" />
+    <style>
+      :root {
+        --gold: #5b5f7c;
+        --navy: #1e1e3f;
+        --light-gray: #ffffff;
+      }
+
+      html, body {
+        margin: 0;
+        padding: 0;
+        height: 100%;
+        font-family: 'Josefin Sans', sans-serif;
+        background-color: var(--light-gray);
+        color: var(--navy);
+      }
+
+      .page-wrapper {
+        display: flex;
+        flex-direction: column;
+        min-height: 100vh;
+      }
+
+      .layout-wrapper {
+        display: flex;
+        flex: 1;
+      }
+
+      .sidebar {
+        flex: 1;
+        background-color: var(--gold);
+      }
+
+      .content {
+        flex: 4;
+        background-color: var(--light-gray);
+        padding: 60px 40px;
+        max-width: 1000px;
+        margin: auto;
+      }
+
+      .content h1 {
+        font-size: 36px;
+        text-align: center;
+        margin-bottom: 40px;
+      }
+
+      .about-container {
+        background-color: #f2f2f2;
+        padding: 30px;
+        border-radius: 15px;
+        max-width: 1000px;
+        margin: auto;
+        overflow: hidden;
+      }
+
+      .about-float-img {
+        float: right;
+        margin: 0 0 20px 30px;
+        max-width: 300px;
+        height: auto;
+        border-radius: 10px;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+      }
+
+      .about-container p {
+        font-size: 18px;
+        line-height: 1.7;
+        color: #333;
+        margin-bottom: 20px;
+      }
+
+      footer {
+        background-color: var(--navy);
+        color: white;
+        text-align: center;
+        padding: 20px;
+        font-size: 14px;
+      }
+
+      footer p {
+        margin: 5px 0;
+      }
+
+      @media (max-width: 900px) {
+        .layout-wrapper {
+          flex-direction: column;
+        }
+
+        .sidebar {
+          display: none;
+        }
+
+        .content {
+          padding: 40px 20px;
+        }
+
+        .about-container {
+          padding: 20px;
+        }
+      }
+
+      @media (max-width: 768px) {
+        .about-float-img {
+          float: none;
+          display: block;
+          margin: 0 auto 20px auto;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="page-wrapper">
+      <%- include('../partials/navBar') %>
+
+      <div class="layout-wrapper">
+        <div class="sidebar"></div>
+
+        <div class="content">
+          <h1>About James Andersen</h1>
+
+          <div class="about-container">
+            <img src="/images/andersen.jpeg" alt="James Andersen" class="about-float-img" />
+
+            <p>
+              James Andersen has practiced law for over 44 years, bringing unparalleled depth and dedication to every client interaction.
+              Licensed in 1977 after graduating from South Texas College of Law, he began his career with a clear sense of purpose:
+              to advocate for individuals and families facing complex legal issues with clarity, empathy, and skill.
+            </p>
+            <p>
+              His experience spans a wide range of legal areas, but his core focus has long been in foreclosure defense, probate, and
+              real estate law. Whether representing homeowners fighting to keep their properties or families navigating sensitive estate
+              matters, James is known for being both strategic and compassionate.
+            </p>
+            <p>
+              Prior to entering the legal profession, James served his country in the Vietnam War, an experience that sharpened his
+              discipline and resilience. He later worked in the political sector, where he learned how to navigate systems, advocate
+              persuasively, and communicate effectively under pressure. These qualities continue to define his legal practice today.
+            </p>
+            <p>
+              Throughout his career, James has maintained a hands-on, client-first approach. He is deeply committed to building relationships
+              based on trust and ensuring that every legal document, filing, and negotiation is handled with precision and care. Clients
+              appreciate his ability to translate legal language into plain terms and his unwavering commitment to protecting their interests.
+            </p>
+            <p>
+              James's reputation is a reflection of the lasting impact he has had on those he serves. He believes in doing the hard work behind
+              the scenes so that his clients can focus on what matters most: finding clarity, resolution, and peace of mind.
+            </p>
+          </div>
+        </div>
+
+        <div class="sidebar"></div>
+      </div>
+
+    </div>
+  </body>
+</html>
+<%- include('../partials/footer') %>

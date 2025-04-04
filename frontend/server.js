@@ -47,7 +47,6 @@ app.get('/bookings/requests', (req, res) => res.render('bookings/bookingsRequest
 
 // Specialties
 app.get('/specialties/foreclosure', (req, res) => res.render('specialties/foreclosure'));
-app.get('/specialties/general', (req, res) => res.render('specialties/general'));
 app.get('/specialties/probate', (req, res) => res.render('specialties/probate'));
 app.get('/specialties/realEstate', (req, res) => res.render('specialties/realEstate'));
 

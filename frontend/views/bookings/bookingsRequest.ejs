@@ -87,12 +87,14 @@
   <div class="container">
     <h2>Requests</h2>
     <form>
-        <div class="form-row">
+      <!--commenting out in case we decide to add back later
+      <div class="form-row">
           <input type="text" name="firstName" placeholder="First Name">
           <input type="text" name="lastName" placeholder="Last Name">
           <input type="email" name="email" placeholder="Email">
           <input type="tel" name="phone" placeholder="Phone">
         </div>
+      -->
         <div class="form-row date-group">
           <label for="startDate">Start Date</label>
           <input type="date" name="startDate" id="startDate">
@@ -101,7 +103,9 @@
           <input type="date" name="endDate" id="endDate">
         </div>
         <div class="form-row">
+          <!--
           <input type="text" name="service" placeholder="Service">
+          -->
           <button type="submit">Submit</button>
         </div>
       </form>      
@@ -126,6 +130,7 @@
     </table>
  
   </div>
-  <%- include('../../partials/footer') %>
+  
 </body>
 </html>
+<%- include('../../partials/footer') %>

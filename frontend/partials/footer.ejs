@@ -1,58 +1,89 @@
-<footer class="footer">
-    <div class="footer-content">
-      <div class="footer-left">
-        <p>
-          <a href="mailto:james.andersen@example.com">
-            <i class="fas fa-envelope"></i> jandersen.law@gmail.com
-          </a> |  
-          <a href="tel:+1234567890">
-            <i class="fas fa-phone-alt"></i> (281) 488-2800
-          </a>
-        </p>
-      </div>
-      <div class="footer-right">
-        <p>&copy; <%= new Date().getFullYear() %> James Andersen, Attorney at Law. All rights reserved.</p>
-      </div>
-    </div>
-  </footer>
-  
-  
-  
-  
-  <!-- Footer CSS (Include in Main CSS File) -->
-  <style>
-    .footer {
-  background-color: #404473; /* Adjust to match your theme */
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+<style>
+  html, body {
+    height: 100%;
+    margin: 0;
+  }
+
+  body {
+    display: flex;
+    flex-direction: column;
+  }
+
+  main {
+    flex: 1;
+  }
+
+  .footer {
+  background-color: #404473;
   color: white;
-  padding: 15px 20px;
+  padding: 10px 15px;
   width: 100%;
+  box-sizing: border-box;
 }
 
-.footer-content {
-  display: flex;
-  justify-content: space-between; /* Aligns items to the left and right */
-  align-items: center;
-  max-width: 1200px;
-  margin: 0 auto;
-  font-size: 0.9rem;
-}
 
-.footer-left {
-  text-align: left; /* Align text to the left */
-}
+  .footer-content {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    align-items: center;
+    max-width: 1200px;
+    margin: 0 auto;
+    font-size: 0.9rem;
+  }
 
-.footer-right {
-  text-align: right; /* Align text to the right */
-}
+  .footer-left,
+  .footer-right {
+    flex: 1 1 300px;
+  }
 
-.footer a {
-  color: white; /* Light blue for contrast */
-  text-decoration: none;
-  font-weight: bold;
-}
+  .footer-left {
+    text-align: left;
+  }
 
-.footer a:hover {
-  text-decoration: underline;
-}
+  .footer-right {
+    text-align: right;
+  }
 
-  </style>
+  .footer a {
+    color: white;
+    text-decoration: none;
+    font-weight: bold;
+  }
+
+  .footer a:hover {
+    text-decoration: underline;
+  }
+
+  @media (max-width: 600px) {
+    .footer-content {
+      flex-direction: column;
+      gap: 10px;
+      text-align: center;
+    }
+
+    .footer-left,
+    .footer-right {
+      text-align: center;
+    }
+  }
+</style>
+
+<footer class="footer">
+  <div class="footer-content">
+    <div class="footer-left">
+      <p>
+        <a href="mailto:jandersen.law@gmail.com">
+          <i class="fas fa-envelope"></i> jandersen.law@gmail.com
+        </a> |
+        <a href="tel:+12814882800">
+          <i class="fas fa-phone-alt"></i> (281) 488-2800
+        </a>
+      </p>
+    </div>
+    <div class="footer-right">
+      <p>&copy; <%= new Date().getFullYear() %> James Andersen, Attorney at Law. All rights reserved.</p>
+    </div>
+  </div>
+</footer>
