@@ -12,24 +12,33 @@
         --light-gray: #ffffff;
       }
 
-      html, body {
+      * {
         margin: 0;
         padding: 0;
+        box-sizing: border-box;
+      }
+
+      html, body {
         height: 100%;
+        display: flex;
+        flex-direction: column;
+        background-color: #5b5f7c;
         font-family: 'Josefin Sans', sans-serif;
-        background-color: var(--light-gray);
-        color: var(--navy);
+        color: #191b41;
       }
 
       .page-wrapper {
+        flex: 1;
         display: flex;
-        flex-direction: column;
-        min-height: 100vh;
+        justify-content: center;
+        align-items: center;
+        padding: 40px 0;
       }
 
       .layout-wrapper {
         display: flex;
-        flex: 1;
+        width: 100%;
+        max-width: 1200px;
       }
 
       .sidebar {
@@ -37,27 +46,25 @@
         background-color: var(--gold);
       }
 
-      .content {
+      .content-wrapper {
         flex: 4;
-        background-color: var(--light-gray);
-        padding: 60px 40px;
-        max-width: 1000px;
-        margin: auto;
+        display: flex;
+        justify-content: center;
       }
 
-      .content h1 {
+      .content-card {
+        background-color: #f2f2f2;
+        padding: 60px 40px;
+        max-width: 1000px;
+        width: 100%;
+        border-radius: 15px;
+        overflow: hidden;
+      }
+
+      .content-card h1 {
         font-size: 36px;
         text-align: center;
         margin-bottom: 40px;
-      }
-
-      .about-container {
-        background-color: #f2f2f2;
-        padding: 30px;
-        border-radius: 15px;
-        max-width: 1000px;
-        margin: auto;
-        overflow: hidden;
       }
 
       .about-float-img {
@@ -69,7 +76,7 @@
         box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
       }
 
-      .about-container p {
+      .content-card p {
         font-size: 18px;
         line-height: 1.7;
         color: #333;
@@ -97,12 +104,8 @@
           display: none;
         }
 
-        .content {
+        .content-card {
           padding: 40px 20px;
-        }
-
-        .about-container {
-          padding: 20px;
         }
       }
 
@@ -116,16 +119,16 @@
     </style>
   </head>
   <body>
-    <div class="page-wrapper">
-      <%- include('../partials/navBar') %>
+    <%- include('../partials/navBar') %>
 
+    <div class="page-wrapper">
       <div class="layout-wrapper">
         <div class="sidebar"></div>
 
-        <div class="content">
-          <h1>About James Andersen</h1>
+        <div class="content-wrapper">
+          <div class="content-card">
+            <h1>About James Andersen</h1>
 
-          <div class="about-container">
             <img src="/images/andersen.jpeg" alt="James Andersen" class="about-float-img" />
 
             <p>
@@ -157,7 +160,8 @@
 
         <div class="sidebar"></div>
       </div>
-      <%- include('../partials/footer') %>
     </div>
+
+    <%- include('../partials/footer') %>
   </body>
 </html>
