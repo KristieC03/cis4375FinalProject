@@ -16,88 +16,93 @@
       margin: 0;
       padding: 0;
       font-family: 'Josefin Sans', sans-serif;
-      background: white;
+      background: #5b5f7c;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
     }
+    
 
     .container {
-        max-width: 900px;
-        margin: auto;
-        padding: 20px;
-        text-align: center;
+      width: 80%;
+      max-width: 1200px;
+      display: flex;
+      gap: 20px;
+      background: rgba(255, 255, 255, 0.1);
+      padding: 20px;
+      border-radius: 10px;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
     }
 
     h2 {
-        text-align: center;
-        color: #2E3156;
+      text-align: center;
+      color: white;
     }
 
     /* Calendar Styling */
     #calendar {
-        margin: 20px auto;
-        max-width: 800px;
-        background: white;
-        padding: 15px;
-        border-radius: 10px;
-        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+      flex: 1;
+      background: white;
+      padding: 15px;
+      border-radius: 10px;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
     }
 
-    /* Time Slots */
-    .time-slot-container {
-        margin-top: 20px;
-        background: #2E3156;
-        padding: 15px;
-        border-radius: 10px;
-        color: white;
+    /* Form Styling */
+    .form-container {
+      flex: 1;
+      background: #2E3156;
+      padding: 20px;
+      border-radius: 10px;
+      color: white;
+      text-align: center;
     }
 
     .time-slot {
-        background: white;
-        color: black;
-        padding: 10px;
-        border: none;
-        margin: 5px;
-        border-radius: 5px;
-        cursor: pointer;
-        width: 30%;
-        display: inline-block;
+      background: white;
+      color: black;
+      padding: 10px;
+      border: none;
+      margin: 5px;
+      border-radius: 5px;
+      cursor: pointer;
+      width: 30%;
+      display: inline-block;
     }
 
     .time-slot.selected {
-        background: gold;
+      background: gold;
     }
 
     /* Submit Button */
     .submit-btn {
-        background: gold;
-        color: black;
-        width: 100%;
-        padding: 10px;
-        border: none;
-        margin-top: 10px;
-        border-radius: 5px;
-        cursor: pointer;
+      background: #b39758;
+      color: black;
+      width: 100%;
+      padding: 10px;
+      border: none;
+      margin-top: 10px;
+      border-radius: 5px;
+      cursor: pointer;
     }
   </style>
 </head>
 
 <body>
-
-  <!-- Include Navbar -->
-  <%- include('../../partials/navBar') %>
+    <%- include('../../partials/navBar') %>
 
   <!-- Hero Section -->
   <div class="hero">
-    <h2 class="hero-title">Book an Appointment</h2>
+    <h2 class="hero-title">Schedule an Appointment</h2>
   </div>
 
   <div class="container">
-      <h2>Select a Date & Time</h2>
-      
       <!-- Full Calendar -->
       <div id="calendar"></div>
 
-      <!-- Time Slots -->
-      <div class="time-slot-container">
+      <!-- Form Section -->
+      <div class="form-container">
+          <h2>Select a Date & Time</h2>
           <h3>Available Time Slots</h3>
           <div id="time-slots">
               <button class="time-slot" data-time="09:00 AM">9:00 AM</button>
@@ -109,14 +114,13 @@
               <button class="time-slot" data-time="03:00 PM">3:00 PM</button>
               <button class="time-slot" data-time="04:00 PM">4:00 PM</button>
           </div>
-      </div>
 
-      <!-- Hidden Input for Selected Date & Time -->
-      <form id="booking-form">
-          <input type="hidden" id="selected-date" name="date">
-          <input type="hidden" id="selected-time" name="time">
-          <button type="submit" class="submit-btn">Confirm Booking</button>
-      </form>
+          <form id="booking-form">
+              <input type="hidden" id="selected-date" name="date">
+              <input type="hidden" id="selected-time" name="time">
+              <button type="submit" class="submit-btn">Confirm Booking</button>
+          </form>
+      </div>
   </div>
 
   <!-- Include Footer -->
@@ -166,4 +170,5 @@
 
 </body>
 </html>
+
 
