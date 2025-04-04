@@ -133,14 +133,13 @@ def api_bookings_all():
 def api_add_booking():
 
     request_data = request.get_json()
-    new_client = request_data['Client_ID']
     new_datetime = request_data['Booking_Date']
     new_service = request_data['Booking_Service']
     new_status = request_data['Booking_Status']
 
     myCreds = maincreds.Creds()
     conn = create_connection(myCreds.connectionstring, myCreds.username, myCreds.passwd, myCreds.dataBase)
-    sql = "insert into booking (Client_ID, Date_Time_ID, Booking_Status, Booking_Approval, Booking_Details) values ('%s','%s','%s', '%s', '%s')" % (new_client, new_datetime, new_service, new_status)
+    sql = "insert into booking (Booking_Date, Booking_Service, Booking_Status) values ('%s','%s', '%s')" % (new_datetime, new_service, new_status)
 
     execute_query(conn, sql)
     return "Add new booking successfully !"
@@ -186,7 +185,7 @@ def search_by_date():
 # Guest view: Update availability of dates based on approval
 @app.route('/api/update_availability', methods=['POST'])
 def update_availability():
-    
+
     approved_date = request.json['approved_date']
     
     myCreds = maincreds.Creds()
@@ -234,7 +233,6 @@ def api_update_booking():
 
     request_data = request.get_json()
     update_id = request_data['id']
-    update_client = request_data['Client_ID']
     update_datetime = request_data['Booking_Date']
     update_service = request_data['Booking_Service']
     update_status = request_data['Booking_Status']
@@ -242,7 +240,7 @@ def api_update_booking():
 
     myCreds = maincreds.Creds()
     conn = create_connection(myCreds.connectionstring, myCreds.username, myCreds.passwd, myCreds.dataBase)
-    sql = "update booking set Client_ID = '%s', Booking_Date = '%s', Booking_Service = '%s', Booking_Status = '%s' where id = %s" % (update_client, update_datetime, update_service, update_status, update_id)
+    sql = "update booking set Booking_Date = '%s', Booking_Service = '%s', Booking_Status = '%s' where id = %s" % (update_datetime, update_service, update_status, update_id)
 
     execute_query(conn, sql)
     return f"Booking with Booking ID {update_id} updated successfully !"
