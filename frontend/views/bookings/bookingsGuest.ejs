@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Book an Appointment | James Andersen Law Firm</title>
+
+  <!-- Google Font -->
+  <link href="https://fonts.googleapis.com/css2?family=Josefin+Sans:wght@300;500;700&display=swap" rel="stylesheet">
+
+  <!-- FullCalendar CSS -->
+  <link href="https://cdn.jsdelivr.net/npm/fullcalendar@5.11.3/main.min.css" rel="stylesheet">
+
+  <style>
+    body {
+      margin: 0;
+      padding: 0;
+      font-family: 'Josefin Sans', sans-serif;
+      background: white;
+    }
+
+    .container {
+        max-width: 900px;
+        margin: auto;
+        padding: 20px;
+        text-align: center;
+    }
+
+    h2 {
+        text-align: center;
+        color: #2E3156;
+    }
+
+    /* Calendar Styling */
+    #calendar {
+        margin: 20px auto;
+        max-width: 800px;
+        background: white;
+        padding: 15px;
+        border-radius: 10px;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    }
+
+    /* Time Slots */
+    .time-slot-container {
+        margin-top: 20px;
+        background: #2E3156;
+        padding: 15px;
+        border-radius: 10px;
+        color: white;
+    }
+
+    .time-slot {
+        background: white;
+        color: black;
+        padding: 10px;
+        border: none;
+        margin: 5px;
+        border-radius: 5px;
+        cursor: pointer;
+        width: 30%;
+        display: inline-block;
+    }
+
+    .time-slot.selected {
+        background: gold;
+    }
+
+    /* Submit Button */
+    .submit-btn {
+        background: gold;
+        color: black;
+        width: 100%;
+        padding: 10px;
+        border: none;
+        margin-top: 10px;
+        border-radius: 5px;
+        cursor: pointer;
+    }
+  </style>
+</head>
+
+<body>
+
+  <!-- Include Navbar -->
+  <%- include('../../partials/navBar') %>
+
+  <!-- Hero Section -->
+  <div class="hero">
+    <h2 class="hero-title">Book an Appointment</h2>
+  </div>
+
+  <div class="container">
+      <h2>Select a Date & Time</h2>
+      
+      <!-- Full Calendar -->
+      <div id="calendar"></div>
+
+      <!-- Time Slots -->
+      <div class="time-slot-container">
+          <h3>Available Time Slots</h3>
+          <div id="time-slots">
+              <button class="time-slot" data-time="09:00 AM">9:00 AM</button>
+              <button class="time-slot" data-time="10:00 AM">10:00 AM</button>
+              <button class="time-slot" data-time="11:00 AM">11:00 AM</button>
+              <button class="time-slot" data-time="12:00 PM">12:00 PM</button>
+              <button class="time-slot" data-time="01:00 PM">1:00 PM</button>
+              <button class="time-slot" data-time="02:00 PM">2:00 PM</button>
+              <button class="time-slot" data-time="03:00 PM">3:00 PM</button>
+              <button class="time-slot" data-time="04:00 PM">4:00 PM</button>
+          </div>
+      </div>
+
+      <!-- Hidden Input for Selected Date & Time -->
+      <form id="booking-form">
+          <input type="hidden" id="selected-date" name="date">
+          <input type="hidden" id="selected-time" name="time">
+          <button type="submit" class="submit-btn">Confirm Booking</button>
+      </form>
+  </div>
+
+  <!-- Include Footer -->
+  <%- include('../../partials/footer') %>
+
+  <!-- FullCalendar & JavaScript -->
+  <script src="https://cdn.jsdelivr.net/npm/fullcalendar@5.11.3/main.min.js"></script>
+  <script>
+  document.addEventListener("DOMContentLoaded", function () {
+      let selectedDate = null;
+      const selectedDateInput = document.getElementById("selected-date");
+      const selectedTimeInput = document.getElementById("selected-time");
+      const timeButtons = document.querySelectorAll(".time-slot");
+
+      // Initialize FullCalendar
+      let calendarEl = document.getElementById("calendar");
+      let calendar = new FullCalendar.Calendar(calendarEl, {
+          initialView: "dayGridMonth",
+          selectable: true,
+          dateClick: function(info) {
+              selectedDate = info.dateStr;
+              selectedDateInput.value = selectedDate;
+              alert("Selected Date: " + selectedDate);
+          }
+      });
+
+      calendar.render();
+
+      // Time slot selection
+      timeButtons.forEach(button => {
+          button.addEventListener("click", function () {
+              selectedTimeInput.value = this.dataset.time;
+              timeButtons.forEach(btn => btn.classList.remove("selected"));
+              this.classList.add("selected");
+          });
+      });
+
+      // Handle form submission
+      document.getElementById("booking-form").addEventListener("submit", function (event) {
+          if (!selectedDateInput.value || !selectedTimeInput.value) {
+              alert("Please select a date and time slot.");
+              event.preventDefault();
+          }
+      });
+  });
+  </script>
+
+</body>
+</html>
+
