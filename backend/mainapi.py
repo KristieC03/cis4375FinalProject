@@ -182,6 +182,23 @@ def search_by_date():
     return jsonify(bookings), 200
 
 
+
+# Guest view: Update availability of dates based on approval
+@app.route('/api/update_availability', methods=['POST'])
+def update_availability():
+    
+    approved_date = request.json['approved_date']
+    
+    myCreds = maincreds.Creds()
+    conn = create_connection(myCreds.connectionstring, myCreds.username, myCreds.passwd, myCreds.dataBase)
+    cursor = conn.cursor()
+    cursor.execute("UPDATE booking SET status = 'unavailable' WHERE booking_date = %s AND booking_status = 'approved'", (approved_date,))
+    conn.commit()
+    
+    return jsonify({"message": "Availability updated"}), 200
+
+
+
 # Auto delete if denied appointment
 @app.route('/api/delete_denied_appointments', methods=['POST'])
 def delete_denied_appointments():
