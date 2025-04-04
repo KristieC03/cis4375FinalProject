@@ -183,7 +183,7 @@ def search_by_date():
 
 
 # Auto delete if denied appointment
-@app.route('api/delete_denied_appointments', methods=['POST'])
+@app.route('/api/delete_denied_appointments', methods=['POST'])
 def delete_denied_appointments():
 
     myCreds = maincreds.Creds()
@@ -196,7 +196,7 @@ def delete_denied_appointments():
 
 
 # Auto delete everything after 30 days
-@app.route('api/delete_old_appointments', methods=['POST'])
+@app.route('/api/delete_old_appointments', methods=['POST'])
 def delete_old_appointments():
     
     myCreds = maincreds.Creds()
