@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Foreclosure Law - James Andersen Law Firm</title>
+
+  <!-- Google Font -->
+  <link href="https://fonts.googleapis.com/css2?family=Josefin+Sans:wght@300;500;700&display=swap" rel="stylesheet">
+
+  <style>
+    body {
+      margin: 0;
+      padding: 0;
+      font-family: 'Josefin Sans', sans-serif;
+      background: #5b5f7c;
+      color: #333;
+    }
+  
+    header {
+      background-color: white;
+      padding: 20px 0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    }
+
+    .content {
+      max-width: 900px;
+      margin: 40px auto;
+      padding: 20px;
+      background: white;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+      border-radius: 8px;
+    }
+    
+    h2 {
+      color: #191b41;
+      font-size: 3.5rem;
+      border-bottom: 2px solid #2c3e50;
+      padding-bottom: 10px;
+      margin-bottom: 24px;
+      text-align: center;
+     
+    }
+    
+    h3 {
+      color: #5b5f7c;
+      font-size: 1.6rem;
+      margin-top: 20px;
+      margin-bottom: 15px;
+    }
+
+    p {
+      font-size: 1.1rem;
+      line-height: 1.6;
+      margin-bottom: 20px;
+      text-align: justify;
+    }
+    
+    strong{
+      color: #b39758; 
+    }
+
+    ul {
+      padding-left: 20px;
+      margin-bottom: 30px;
+    }
+
+    li {
+      margin-bottom: 25px;
+      font-size: 1.1rem;
+      line-height: 1.6;
+    }
+
+    li strong{
+        color: #b39758;
+    }
+
+    .realestate-img {
+      display: block;
+      max-width: 60%;
+      height: auto;
+      margin: 20px auto;
+    }
+
+    .contact {
+      margin-top: 30px;
+      font-weight: bold;
+      font-size: 1.3rem;
+      color: #e74c3c;
+      text-align: center;
+      margin-bottom: 40px;
+    }
+
+    footer {
+      background-color: #2c3e50;
+      color: white;
+      padding: 20px 0;
+      text-align: center;
+    }
+
+    footer p {
+      margin: 0;
+      font-size: 1rem;
+    }
+    
+  </style>
+</head>
+
+<body>
+  <%- include('../../partials/navBar') %>
+
+  <div class="content">
+    <h2>Real Estate Law </h2>
+      
+    <p> At James Andersen, Attorney at Law, I am ready to assist with your real estate needs.  With over <strong>44 years of legal experience</strong> , I am able to counsel clients on simple to complex real estate transactions.</p>
+   
+    <img src="/images/Realestate.png" alt="Foreclosure Options" class="realestate-img">
+
+    <h3>Real Estate Litigation Services</h3>
+    <p>Litigation services include both commercial and residential real estate.  The type of cases that are litigated include breach of sales agreement and suits to quiet title.  If you have questions or need to speak directly to an attorney, <strong> please contact my firm at (281) 488-2800. </strong></p>
+
+    <h3>Deed Preparation Services</h3>
+    <p> At James Andersen, Attorney at Law, the following deeds are routinely prepared:</p>
+    <p><strong>Special Warranty Deeds-</strong> Deed in which seller guarantees title to the property being sold was not impaired during the time the seller, but makes no assurance about previous owners. </p>
+    <p><strong>Quitclaim Deeds- </strong>A quitclaim deed transfers a grantor’s complete interest or claim in certain real property to a grantee, but does not warrant the extent of the grantor’s interest, if any, or that the title is even valid.</p>
+    <p><strong>General Warranty Deeds-   </strong>The warranty deed expressly guarantees the grantor has good, clear title and covenants the quality of title, including warranties such as quiet enjoyment, right to convey, freedom from encumbrances, and defense of title against all claims.</p>
+    <p>I will advise you which deed needs to be prepared in your particular circumstance since the type of the deed and the clauses in the particular deed can have an impact on the interest transferred. </p>
+   
+    <h3> Contract Review Services </h3>
+    <p>Contract review services for client include the following:</p>
+    <li>
+        <ul>Commercial and Residential Sales Contracts</ul>
+    </li>
+   <li><ul>Commercial and Residential Lease Contracts and Addendum</ul></li>
+    
+  </div>
+
+  <%- include('../../partials/footer') %>
+</body>
+</html>
