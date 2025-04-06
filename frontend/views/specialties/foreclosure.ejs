@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Foreclosure Law - James Andersen Law Firm</title>
+
+  <!-- Google Font -->
+  <link href="https://fonts.googleapis.com/css2?family=Josefin+Sans:wght@300;500;700&display=swap" rel="stylesheet" />
+
+  <style>
+    :root {
+      --gold: #5b5f7c;
+      --navy: #1e1e3f;
+      --light-gray: #ffffff;
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    html, body {
+      height: 100%;
+      display: flex;
+      flex-direction: column;
+      background-color: var(--gold);
+      font-family: 'Josefin Sans', sans-serif;
+      color: #191b41;
+    }
+
+    .page-wrapper {
+      flex: 1;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding: 40px 0;
+    }
+
+    .layout-wrapper {
+      display: flex;
+      width: 100%;
+      max-width: 1200px;
+    }
+
+    .sidebar {
+      flex: 1;
+      background-color: var(--gold);
+    }
+
+    .content-wrapper {
+      flex: 4;
+      display: flex;
+      justify-content: center;
+    }
+
+    .content-card {
+      background-color: #f2f2f2;
+      padding: 60px 40px;
+      max-width: 1000px;
+      width: 100%;
+      border-radius: 15px;
+      overflow: hidden;
+    }
+
+    .content-card h2 {
+      font-size: 36px;
+      text-align: center;
+      margin-bottom: 30px;
+      color: #191b41;
+      border-bottom: 2px solid #2c3e50;
+      padding-bottom: 10px;
+    }
+
+    .content-card h3 {
+      font-size: 24px;
+      color: #5b5f7c;
+      margin-top: 30px;
+      margin-bottom: 15px;
+    }
+
+    .content-card p {
+      font-size: 18px;
+      line-height: 1.7;
+      color: #333;
+      margin-bottom: 20px;
+      text-align: justify;
+    }
+
+    .content-card ol {
+      padding-left: 20px;
+      margin-bottom: 30px;
+    }
+
+    .content-card li {
+      font-size: 18px;
+      line-height: 1.7;
+      margin-bottom: 20px;
+    }
+
+    .content-card strong {
+      color: #b39758;
+    }
+
+    .options-img {
+      display: block;
+      max-width: 100%;
+      height: auto;
+      margin: 20px auto;
+    }
+
+    .contact {
+      font-weight: bold;
+      font-size: 1.3rem;
+      color: #e74c3c;
+      text-align: center;
+      margin-top: 30px;
+      margin-bottom: 40px;
+    }
+
+    footer {
+      background-color: var(--navy);
+      color: white;
+      text-align: center;
+      padding: 20px;
+      font-size: 14px;
+    }
+
+    footer p {
+      margin: 5px 0;
+    }
+
+    @media (max-width: 900px) {
+      .layout-wrapper {
+        flex-direction: column;
+      }
+
+      .sidebar {
+        display: none;
+      }
+
+      .content-card {
+        padding: 40px 20px;
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <%- include('../../partials/navBar') %>
+
+  <div class="page-wrapper">
+    <div class="layout-wrapper">
+      <div class="sidebar"></div>
+
+      <div class="content-wrapper">
+        <div class="content-card">
+          <h2>Foreclosure Law</h2>
+
+          <h3>What is a foreclosure?</h3>
+          <p>A <strong>foreclosure</strong> is a legal process in which a lender attempts to recover the balance of a loan after a borrower has stopped making payments. If you have failed to make your mortgage payments, a financial institution, bank, lender, or any lien holder can immediately file a lawsuit against you to take your property and sell it in order to settle the debt you owe.</p>
+
+          <h3>Are you behind in your mortgage payments to your lender?</h3>
+          <p>Your lender can initiate foreclosure proceedings when you are in default and behind on your mortgage payments. <strong>Defaulting</strong> means failing to meet the payment obligations outlined in the loan agreement.</p>
+
+          <h3>Ways to Stop Foreclosure</h3>
+          <p>A homeowner can pursue any of the following options to stop foreclosure:</p>
+          <img src="/images/options.png" alt="Foreclosure Options" class="options-img">
+          <ol>
+            <li><strong>Loan Modification:</strong> A homeowner can modify the terms of their loan if they are facing an unexpected hardship. Your mortgage lender can extend the length of your loan or allow you to add the past due payments to the loan. This does not reduce the principal payment on your loan, but may make staying in your home more feasible.</li>
+            <li><strong>Dealing with the Lender:</strong> It is important to take steps to be proactive. Contact your lender immediately if you have experienced unexpected hardships such as loss of your job or unexpected health problems and are unable to make your mortgage payment. Lenders can work with borrowers and offer payment plan options to get back on track. If your bank has already filed a foreclosure suit against you, it is important to have experienced and competent legal representation to help you.</li>
+            <li><strong>Request a Forbearance:</strong> A forbearance is a temporary agreement with a lender to pause or reduce payments. In some situations, lenders can allow a homeowner a temporary forbearance to pause mortgage payments for a set period of time; however, the missed payments are eventually caught up in one lump sum payment due to the lender at the end of the forbearance period. It is important to note that interest does accrue during the temporary forbearance period.</li>
+            <li><strong>File for Chapter 7 or Chapter 13 bankruptcy:</strong> Bankruptcy is a legal process for relieving debt that a person cannot repay by either liquidating assets or restructuring those debts. By filing Chapter 7 or 13 bankruptcy, the bankruptcy proceeding will automatically stay or freeze foreclosure proceedings.</li>
+          </ol>
+
+          <h3>Why You Need Legal Assistance</h3>
+          <p>It is important to discuss these options with experienced legal counsel. If you are facing foreclosure, contact my firm immediately to protect your rights. I can help defend your case and work towards keeping you in your home. If you are considering leaving your home, I can assist in obtaining a deficiency judgment waiver after a deed in lieu of foreclosure or short sale.</p>
+
+          <p>At James Anderson, Attorney at Law, I will fight for you so you can remain in your home. With my aggressive foreclosure defense strategies, I will fight to get you more time so you can pursue loan modification options. Or in situations where you are contemplating leaving the home, I can help obtain a deficiency judgment waiver after a deed in lieu of foreclosure or short sale.</p>
+        </div>
+      </div>
+
+      <div class="sidebar"></div>
+    </div>
+  </div>
+
+  <%- include('../../partials/footer') %>
+</body>
+</html>

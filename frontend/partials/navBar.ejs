@@ -1,0 +1,112 @@
+<!-- Style -->
+<style>
+    @import url('https://fonts.googleapis.com/css2?family=Josefin+Sans:ital,wght@0,100..700;1,100..700&display=swap');
+  
+    .logo-bar {
+      background-color: #c4c0bf; /* light gray */
+      padding: 5px 0;
+      display: flex;
+      justify-content: center;
+    }
+  
+    .logo {
+      height: 100px;
+      width: auto;
+    }
+  
+    nav {
+        display: flex;
+        justify-content: center;
+        background: #191b41;
+        padding: 10px 0;
+        gap: 55px; /* ← add this line */
+        flex-wrap: wrap;
+        font-family: 'Josefin Sans', sans-serif;
+    }
+  
+    nav a {
+        color: white;
+        text-decoration: none;
+        padding: 10px 25px; /* ← increased horizontal spacing */
+        font-size: 1rem;
+    }
+
+  
+    nav a:hover {
+      background-color: rgba(255, 255, 255, 0.1);
+      border-radius: 5px;
+    }
+  
+    .dropdown {
+      position: relative;
+      display: inline-block;
+    }
+  
+    .dropbtn {
+      color: white;
+      text-decoration: none;
+      padding: 10px 20px;
+      display: inline-block;
+      cursor: pointer;
+    }
+  
+    .dropdown-content {
+      display: none;
+      position: absolute;
+      background-color: white;
+      min-width: 150px;
+      box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.2);
+      z-index: 1;
+    }
+  
+    .dropdown-content a {
+      color: #191b41;
+      padding: 10px;
+      text-decoration: none;
+      display: block;
+    }
+  
+    .dropdown-content a:hover {
+      background-color: #eee;
+    }
+  
+    .dropdown:hover .dropdown-content {
+      display: block;
+    }
+  </style>
+  
+  <!-- Logo Section -->
+  <div class="logo-bar">
+    <img src="/images/AnderLogoMulti.png" alt="Andersen Law Logo" class="logo">
+  </div>
+  
+  <!-- Navbar -->
+  <nav>
+    <a href="/">Home</a>
+    <a href="/about">About</a>
+  
+    <div class="dropdown">
+      <a href="#" class="dropbtn">Practice Areas ▼</a>
+      <div class="dropdown-content">
+        <a href="/specialties/foreclosure">Foreclosure</a>
+        <a href="/specialties/probate">Probate</a>
+        <a href="/specialties/realEstate">Real Estate</a>
+      </div>
+    </div>
+  
+    <a href="/contact">Contact</a>
+  
+    <% if (user) { %>
+      <div class="dropdown">
+        <a href="#" class="dropbtn">Bookings ▼</a>
+        <div class="dropdown-content">
+          <a href="/bookings/dashboard">Dashboard</a>
+          <a href="/bookings/requests">Requests</a>
+        </div>
+      </div>
+      <a href="/logout">Log out</a>
+    <% } else { %>
+      <a href="/bookings/guest">Schedule Appointment</a>
+      <a href="/login">Log in</a>
+    <% } %>
+  </nav>

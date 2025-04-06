@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Admin Login</title>
+  <link href="https://fonts.googleapis.com/css2?family=Josefin+Sans:wght@300;500;700&display=swap" rel="stylesheet">
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+
+    html, body {
+      margin: 0;
+      padding: 0;
+      height: 100%;
+      font-family: 'Josefin Sans', sans-serif;
+      background-color: #5b5f7c;
+      display: flex;
+      flex-direction: column;
+      
+    }
+
+    .page-wrapper {
+      flex: 1;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding: 2rem;
+    }
+
+    .login-container {
+      background: #ffffff;
+      padding: 2rem;
+      border-radius: 8px;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+      width: 100%;
+      max-width: 400px;
+    }
+
+    h2 {
+      text-align: center;
+      font-weight: 700;
+      margin-bottom: 1rem;
+    }
+
+    label {
+      display: block;
+      margin-top: 1rem;
+      font-weight: 500;
+    }
+
+    input[type="text"],
+    input[type="password"] {
+      width: 100%;
+      padding: 0.5rem;
+      margin-top: 0.25rem;
+      border: 1px solid #191b41;
+      border-radius: 4px;
+    }
+
+    button {
+      width: 100%;
+      padding: 0.75rem;
+      margin-top: 1.5rem;
+      background-color: #b39758;
+      color: white;
+      border: none;
+      border-radius: 4px;
+      font-size: 1rem;
+      cursor: pointer;
+    }
+
+    button:hover {
+      background-color: #a88d4e;
+    }
+
+    .error {
+      color: red;
+      margin-top: 1rem;
+      text-align: center;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Navbar include -->
+  <%- include('../partials/navBar') %>
+
+  <!-- Centered Login Box -->
+  <div class="page-wrapper">
+    <div class="login-container">
+      <h2 style = "color:#191b41;">Admin Login</h2>
+      <form id="loginForm">
+        <label style = "color:#191b41;" for="username">Username</label>
+        <input style = "background-color: #ffffff;" type="text" id="username" required />
+
+        <label style = "color:#191b41;" for="password">Password</label>
+        <input style = "background-color: #ffffff;" type="password" id="password" required />
+
+        <button type="submit">Login</button>
+        <div class="error" id="error-msg"></div>
+      </form>
+    </div>
+  </div>
+
+</body>
+<script>
+  const form = document.getElementById('loginForm');
+  const errorMsg = document.getElementById('error-msg');
+
+  form.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    errorMsg.textContent = '';
+
+    const username = document.getElementById('username').value;
+    const password = document.getElementById('password').value;
+    const credentials = btoa(`${username}:${password}`);
+
+    try {
+      const response = await fetch('http://localhost:5050/authenticatedroute', {
+        method: 'GET',
+        headers: {
+          'Authorization': `Basic ${credentials}`
+        }
+      });
+
+      if (response.ok) {
+        window.location.href = '/bookings/dashboard'; // or show success
+      } else {
+        errorMsg.textContent = 'Invalid username or password.';
+      }
+    } catch (error) {
+      console.error('Login error:', error);
+      errorMsg.textContent = 'Error connecting to the server.';
+    }
+  });
+</script>
+
+</html>
+<%- include('../partials/footer') %>
