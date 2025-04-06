@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Probate Law - James Andersen Law Firm</title>
+
+  <!-- Google Font -->
+  <link href="https://fonts.googleapis.com/css2?family=Josefin+Sans:wght@300;500;700&display=swap" rel="stylesheet">
+
+  <style>
+    :root {
+      --gold: #5b5f7c;
+      --navy: #1e1e3f;
+      --light-gray: #ffffff;
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    html, body {
+      height: 100%;
+      display: flex;
+      flex-direction: column;
+      background-color: var(--gold);
+      font-family: 'Josefin Sans', sans-serif;
+      color: #191b41;
+    }
+
+    .page-wrapper {
+      flex: 1;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding: 40px 0;
+    }
+
+    .layout-wrapper {
+      display: flex;
+      width: 100%;
+      max-width: 1200px;
+    }
+
+    .sidebar {
+      flex: 1;
+      background-color: var(--gold);
+    }
+
+    .content-wrapper {
+      flex: 4;
+      display: flex;
+      justify-content: center;
+    }
+
+    .content-card {
+      background-color: #f2f2f2;
+      padding: 60px 40px;
+      max-width: 1000px;
+      width: 100%;
+      border-radius: 15px;
+      overflow: hidden;
+    }
+
+    .content-card h2 {
+      font-size: 36px;
+      text-align: center;
+      margin-bottom: 30px;
+      color: #191b41;
+      border-bottom: 2px solid #2c3e50;
+      padding-bottom: 10px;
+    }
+
+    .content-card h3 {
+      font-size: 24px;
+      color: #5b5f7c;
+      margin-top: 30px;
+      margin-bottom: 15px;
+    }
+
+    .content-card p {
+      font-size: 18px;
+      line-height: 1.7;
+      color: #333;
+      margin-bottom: 20px;
+      text-align: justify;
+    }
+
+    .content-card strong {
+      color: #b39758;
+    }
+
+    .probate-img1 {
+      display: block;
+      width: 300px;
+      height: auto;
+      margin: 20px auto;
+    }
+
+    .probate-img2 {
+      display: block;
+      max-width: 80%;
+      height: auto;
+      margin: 20px auto;
+    }
+
+    .contact {
+      font-weight: bold;
+      font-size: 1.3rem;
+      color: #e74c3c;
+      text-align: center;
+      margin-top: 30px;
+      margin-bottom: 40px;
+    }
+
+    footer {
+      background-color: var(--navy);
+      color: white;
+      text-align: center;
+      padding: 20px;
+      font-size: 14px;
+    }
+
+    footer p {
+      margin: 5px 0;
+    }
+
+    @media (max-width: 900px) {
+      .layout-wrapper {
+        flex-direction: column;
+      }
+
+      .sidebar {
+        display: none;
+      }
+
+      .content-card {
+        padding: 40px 20px;
+      }
+    }
+
+    @media (max-width: 768px) {
+      .probate-img1, .probate-img2 {
+        max-width: 100%;
+        margin: 0 auto 20px auto;
+        display: block;
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <%- include('../../partials/navBar') %>
+
+  <div class="page-wrapper">
+    <div class="layout-wrapper">
+      <div class="sidebar"></div>
+
+      <div class="content-wrapper">
+        <div class="content-card">
+          <h2>Probate Law</h2>
+
+          <p>My firm routinely represents clients in Harris, Brazoria, Galveston, and Montgomery County, Texas. With over <strong>44 years of legal experience</strong>, I am able to counsel clients on simple to complex contested probate matters.</p>
+
+          <h3>What is a Will? What is Probate?</h3>
+          <p>A person who has died is often referred to as the <strong>Decedent.</strong></p>
+          <p>A <strong>Will</strong> or Last Will and Testament is a legal document that describes how a person would like their property and other assets to be distributed after their death.</p>
+          <p><strong>Probate</strong> is a formal procedure that is undergone in a Texas probate court to gather assets of the Decedent, clear title to property, pay debts, and distribute assets.</p>
+
+          <h3>Which probate proceeding do I need?</h3>
+          <img src="/images/probate1.png" alt="Probate Options" class="probate-img1">
+
+          <h3>What situation applies?</h3>
+          <p>When a person dies with a Will, the original Will is filed with the clerk of the Probate Court and an application is filed to probate the Will and appoint an executor named in the Will to administer the estate. An executor, once qualified by the Probate Court, collects the assets, pays the debts of the estate, and distributes the remaining assets of the estate to the beneficiaries named in the person’s Will.</p>
+          <p>When a person dies without a Will, the situation becomes more complex. The Court will determine who the rightful heirs of the individual in a process called a <strong>heirship proceeding</strong>. In this proceeding, the laws of the State of Texas determine who will inherit the property of the Decedent and the percentage of the estate they are to receive.</p>
+
+          <p>Typically, the Court will determine if the individual was married, had children, and if not, will then determine if the individual is survived by their parents or siblings. The order of priority of who will inherit will usually go to spouses, children, then parents, and then to siblings. The percentage of distribution to spouses and children will also be determined if the children are born of the marriage between the surviving spouse and the Decedent. It is important to have competent legal representation to understand what you are entitled to. Contact my firm at (281) 488-2800 to discuss your rights.</p>
+
+          <img src="/images/probate2.png" alt="Probate Process" class="probate-img2">
+
+          <p>In an heirship proceeding, the <strong>heirs</strong> (people entitled to inherit under the laws of the State of Texas) can come to an agreement and provide their consent to administer the estate by allowing for an independent administration. An <strong>independent administration</strong> is a probate process where the personal representative (an executor or administrator) manages the estate without court supervision. The administrator still has to be approved by the Court, but they will not have to file a bond and will not be supervised by the Court in administering the estate. This is the most cost-effective means of administering the estate.</p>
+
+          <p>If the heirs cannot agree to an independent administration, the court will order a <strong>dependent administration</strong>. A dependent administration is a probate process where the Court closely oversees and approves every action taken by the administrator and court approval is required prior to action being taken. A dependent administration is a much lengthier process because the dependent administrator will have to request court permission to sell assets, pay debts, and provide annual accountings of the estate’s assets, debts, and the status of the estate to the court. The dependent administrator will also be required to obtain a bond to ensure that the estate is properly protected.</p>
+
+          <h3>Do I need a lawyer?</h3>
+          <p>It is important to seek representation early on. Probate is a complex area of law and the law usually requires an individual to be represented in probate court if they are requesting to file for probate.</p>
+
+        </div>
+      </div>
+
+      <div class="sidebar"></div>
+    </div>
+  </div>
+
+  <%- include('../../partials/footer') %>
+</body>
+</html>

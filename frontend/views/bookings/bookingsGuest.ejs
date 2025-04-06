@@ -1,0 +1,273 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Book an Appointment | James Andersen Law Firm</title>
+
+  <!-- Fonts & FullCalendar -->
+  <link href="https://fonts.googleapis.com/css2?family=Josefin+Sans:wght@300;500;700&display=swap" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/fullcalendar@5.11.3/main.min.css" rel="stylesheet">
+
+  <style>
+    html, body {
+      margin: 0;
+      padding: 0;
+      height: 100%;
+      font-family: 'Josefin Sans', sans-serif;
+      background-color: #5b5f7c;
+    }
+
+    .page-wrapper {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 2rem;
+    }
+
+    .container {
+      max-width: 1200px;
+      width: 100%;
+      display: flex;
+      gap: 20px;
+      padding: 20px;
+      background: rgba(255, 255, 255, 0.1);
+      border-radius: 10px;
+    }
+
+    h2 {
+      color: white;
+      text-align: center;
+    }
+
+    .calendar-wrapper {
+      flex: 1;
+      background: white;
+      padding: 15px;
+      border-radius: 10px;
+    }
+
+    #calendar-title {
+      text-align: right;
+      font-weight: bold;
+      font-size: 1.25rem;
+      margin-bottom: 10px;
+    }
+
+    #calendar {
+      border-radius: 10px;
+    }
+
+    .form-container {
+      flex: 1;
+      background: #2E3156;
+      padding: 20px;
+      border-radius: 10px;
+      color: white;
+      text-align: center;
+    }
+
+    .time-slot {
+      background: white;
+      color: black;
+      padding: 10px;
+      border: none;
+      margin: 5px;
+      border-radius: 5px;
+      cursor: pointer;
+      width: 30%;
+      display: inline-block;
+    }
+
+    .time-slot.selected {
+      background: gold;
+    }
+
+    .submit-btn {
+      background: #b39758;
+      color: black;
+      width: 100%;
+      padding: 10px;
+      border: none;
+      margin-top: 10px;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+
+    .submit-btn:disabled {
+      background: #999;
+      color: #ccc;
+      cursor: not-allowed;
+    }
+
+    .fc-day-selected {
+      outline: 3px solid #b39758 !important;
+    }
+
+    .fc-header-toolbar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .fc-toolbar-title {
+      display: none !important;
+    }
+
+    .no-times-message {
+      font-style: italic;
+      color: #ccc;
+      margin-top: 20px;
+    }
+  </style>
+</head>
+<body>
+
+  <%- include('../../partials/navBar') %>
+
+  <div class="page-wrapper">
+    <h2>Schedule an Appointment</h2>
+
+    <div class="container">
+      <div class="calendar-wrapper">
+        <div id="calendar-title">Loading month...</div>
+        <div id="calendar"></div>
+      </div>
+
+      <div class="form-container">
+        <h3>Select a Time</h3>
+        <p id="selected-date-display" style="margin: 10px 0; font-weight: bold;"></p>
+
+        <div id="time-slots">
+          <div class="time-slot" data-time="09:00 AM">9:00 AM</div>
+          <div class="time-slot" data-time="10:00 AM">10:00 AM</div>
+          <div class="time-slot" data-time="11:00 AM">11:00 AM</div>
+          <div class="time-slot" data-time="12:00 PM">12:00 PM</div>
+          <div class="time-slot" data-time="01:00 PM">1:00 PM</div>
+          <div class="time-slot" data-time="02:00 PM">2:00 PM</div>
+          <div class="time-slot" data-time="03:00 PM">3:00 PM</div>
+          <div class="time-slot" data-time="04:00 PM">4:00 PM</div>
+        </div>
+
+        <p id="no-times-msg" class="no-times-message" style="display: none;">No times available for this date.</p>
+
+        <form id="booking-form">
+          <input type="hidden" id="selected-date" name="date">
+          <input type="hidden" id="selected-time" name="time">
+          <button type="submit" class="submit-btn" id="submit-btn" disabled>Confirm Booking</button>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <%- include('../../partials/footer') %>
+
+  <script src="https://cdn.jsdelivr.net/npm/fullcalendar@5.11.3/main.min.js"></script>
+  <script>
+    document.addEventListener("DOMContentLoaded", function () {
+      const selectedDateInput = document.getElementById("selected-date");
+      const selectedDateDisplay = document.getElementById("selected-date-display");
+      const selectedTimeInput = document.getElementById("selected-time");
+      const timeButtons = document.querySelectorAll(".time-slot");
+      const timeSlotsDiv = document.getElementById("time-slots");
+      const noTimesMsg = document.getElementById("no-times-msg");
+      const submitBtn = document.getElementById("submit-btn");
+      const calendarTitle = document.getElementById("calendar-title");
+
+      const today = new Date();
+      today.setHours(0, 0, 0, 0);
+
+      const calendar = new FullCalendar.Calendar(document.getElementById("calendar"), {
+        initialView: "dayGridMonth",
+        selectable: true,
+        unselectAuto: false,
+        headerToolbar: {
+          left: "prev,next today",
+          right: ""
+        },
+        titleFormat: { month: 'long', year: 'numeric' },
+
+        // ✅ Update title correctly on month nav
+        datesSet: function(info) {
+          const currentDate = calendar.getDate(); // use center date
+          const month = currentDate.toLocaleString('default', { month: 'long' });
+          const year = currentDate.getFullYear();
+          calendarTitle.textContent = `${month} ${year}`;
+        },
+
+        dateClick: function (info) {
+          const clickedDate = new Date(info.dateStr + "T00:00:00");
+          const day = clickedDate.getDay();
+
+          document.querySelectorAll('.fc-daygrid-day').forEach(cell => {
+            cell.classList.remove('fc-day-selected');
+          });
+
+          const parentCell = info.dayEl.closest('.fc-daygrid-day');
+          if (parentCell) parentCell.classList.add('fc-day-selected');
+
+          selectedDateInput.value = info.dateStr;
+          selectedDateDisplay.textContent = "Selected Date: " + info.dateStr;
+
+          const isPast = clickedDate < today;
+          const isWeekend = (day === 0 || day === 6);
+          const isToday = clickedDate.getTime() === today.getTime();
+
+          if (isPast || isWeekend) {
+            timeSlotsDiv.style.display = 'none';
+            noTimesMsg.style.display = 'block';
+            submitBtn.disabled = true;
+          } else {
+            timeSlotsDiv.style.display = 'block';
+            noTimesMsg.style.display = 'none';
+            submitBtn.disabled = false;
+
+            timeButtons.forEach(btn => {
+              btn.style.display = 'inline-block';
+            });
+
+            if (isToday) {
+              const now = new Date();
+              const currentHour = now.getHours();
+              const currentMinute = now.getMinutes();
+
+              timeButtons.forEach(btn => {
+                const timeText = btn.dataset.time;
+                const [hourRaw, meridian] = timeText.split(" ");
+                let [hour, minute] = hourRaw.split(":").map(Number);
+
+                if (meridian === "PM" && hour !== 12) hour += 12;
+                if (meridian === "AM" && hour === 12) hour = 0;
+
+                if (hour < currentHour || (hour === currentHour && minute <= currentMinute)) {
+                  btn.style.display = "none";
+                }
+              });
+            }
+          }
+
+          selectedTimeInput.value = "";
+          timeButtons.forEach(btn => btn.classList.remove("selected"));
+        }
+      });
+
+      calendar.render();
+
+      timeButtons.forEach(button => {
+        button.addEventListener("click", function () {
+          selectedTimeInput.value = this.dataset.time;
+          timeButtons.forEach(btn => btn.classList.remove("selected"));
+          this.classList.add("selected");
+        });
+      });
+
+      document.getElementById("booking-form").addEventListener("submit", function (e) {
+        if (!selectedDateInput.value || !selectedTimeInput.value) {
+          e.preventDefault();
+          alert("Please select both a date and time before confirming your booking.");
+        }
+      });
+    });
+  </script>
+</body>
+</html>

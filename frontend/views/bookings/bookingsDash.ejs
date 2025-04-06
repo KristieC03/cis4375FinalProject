@@ -1,1 +1,360 @@
-<h1> Testing </h1>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Appointment Dashboard</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link href="https://fonts.googleapis.com/css2?family=Josefin+Sans:wght@300;500;700&display=swap" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/fullcalendar@5.11.3/main.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    html, body {
+      font-family: 'Josefin Sans', sans-serif;
+      background-color: #5b5f7c;
+      color: white;
+      min-height: 100vh;
+    }
+    .dashboard-container {
+      max-width: 1200px;
+      margin: 40px auto;
+      padding: 30px;
+    }
+    h1, h2 { color: white; margin-bottom: 20px; }
+    .calendar-section { margin-bottom: 50px; }
+
+    #calendar-title {
+      text-align: right;
+      font-weight: bold;
+      font-size: 1.25rem;
+      margin-bottom: 10px;
+      color: white;
+    }
+
+    #calendar {
+      background-color: white;
+      color: black;
+      padding: 20px;
+      border-radius: 10px;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+    }
+
+    .fc-toolbar-title {
+      display: none !important;
+    }
+
+    .search-container { margin-bottom: 20px; }
+    .search-container input {
+      padding: 10px;
+      font-size: 16px;
+      width: 100%;
+      max-width: 300px;
+      border-radius: 5px;
+      border: none;
+    }
+    .appointment-table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-bottom: 40px;
+      background-color: white;
+      color: black;
+      border-radius: 10px;
+      overflow: hidden;
+    }
+    .appointment-table th,
+    .appointment-table td {
+      padding: 12px;
+      border-bottom: 1px solid #ccc;
+      text-align: left;
+    }
+    .appointment-table th {
+      background-color: #404473;
+      color: white;
+      cursor: pointer;
+      user-select: none;
+    }
+    .appointment-table th .arrow {
+      margin-left: 5px;
+      font-size: 0.8em;
+    }
+    .appointment-table tr:nth-child(even) { background-color: #f9f9f9; }
+    .appointment-table tr:hover { background-color: #f1f1f1; }
+    .fc-daygrid-day {
+      transition: background-color 0.2s ease;
+    }
+    .fc-daygrid-day:hover {
+      background-color: #d2d2ff;
+      cursor: pointer;
+    }
+    #appointmentModal {
+      display: none;
+      position: fixed;
+      top: 0; left: 0;
+      width: 100%; height: 100%;
+      background-color: rgba(0, 0, 0, 0.7);
+      justify-content: center;
+      align-items: center;
+      z-index: 1000;
+    }
+    #appointmentModal .modal-content {
+      background: white;
+      color: black;
+      padding: 20px;
+      border-radius: 10px;
+      width: 90%;
+      max-width: 600px;
+      max-height: 80vh;
+      overflow-y: auto;
+      position: relative;
+    }
+    #appointmentModal .close-button {
+      position: absolute;
+      top: 10px;
+      right: 10px;
+      border: none;
+      background: transparent;
+      font-size: 18px;
+      cursor: pointer;
+    }
+  </style>
+</head>
+<body>
+  <%- include('../../partials/navBar') %>
+
+  <div class="dashboard-container">
+    <h1>Appointment Dashboard</h1>
+
+    <section class="calendar-section">
+      <h2><i class="fas fa-calendar"></i> Schedule Overview</h2>
+      <div id="calendar-title">Loading month...</div> <!-- ✅ Custom Month Display -->
+      <div id="calendar"></div>
+    </section>
+
+    <section>
+      <h2><i class="fas fa-calendar-alt"></i> Upcoming Appointments</h2>
+      <div class="search-container">
+        <input type="text" id="upcomingSearch" placeholder="Search upcoming appointments..." onkeyup="searchAppointments('upcoming')">
+      </div>
+      <table class="appointment-table" id="upcomingTable" data-sort-dir="asc">
+        <thead>
+          <tr>
+            <th onclick="sortTable('upcomingTable', 0)">Name<span class="arrow">▲</span></th>
+            <th onclick="sortTable('upcomingTable', 1)">Email<span class="arrow">▲</span></th>
+            <th onclick="sortTable('upcomingTable', 2)">Phone<span class="arrow">▲</span></th>
+            <th onclick="sortTable('upcomingTable', 3)">Date<span class="arrow">▲</span></th>
+            <th onclick="sortTable('upcomingTable', 4)">Time<span class="arrow">▲</span></th>
+            <th onclick="sortTable('upcomingTable', 5)">Service<span class="arrow">▲</span></th>
+            <th onclick="sortTable('upcomingTable', 6)">Notes<span class="arrow">▲</span></th>
+          </tr>
+        </thead>
+        <tbody>
+          <% upcomingAppointments.forEach(app => { %>
+            <tr>
+              <td><%= app.firstName %> <%= app.lastName %></td>
+              <td><%= app.email %></td>
+              <td><%= app.phone %></td>
+              <td><%= app.date %></td>
+              <td><%= app.time %> <%= app.period %></td>
+              <td><%= app.serviceType %></td>
+              <td><%= app.notes || '—' %></td>
+            </tr>
+          <% }) %>
+        </tbody>
+      </table>
+    </section>
+
+    <section>
+      <h2><i class="fas fa-history"></i> Past Appointments</h2>
+      <div class="search-container">
+        <input type="text" id="pastSearch" placeholder="Search past appointments..." onkeyup="searchAppointments('past')">
+      </div>
+      <table class="appointment-table" id="pastTable" data-sort-dir="asc">
+        <thead>
+          <tr>
+            <th onclick="sortTable('pastTable', 0)">Name<span class="arrow">▲</span></th>
+            <th onclick="sortTable('pastTable', 1)">Email<span class="arrow">▲</span></th>
+            <th onclick="sortTable('pastTable', 2)">Phone<span class="arrow">▲</span></th>
+            <th onclick="sortTable('pastTable', 3)">Date<span class="arrow">▲</span></th>
+            <th onclick="sortTable('pastTable', 4)">Time<span class="arrow">▲</span></th>
+            <th onclick="sortTable('pastTable', 5)">Service<span class="arrow">▲</span></th>
+            <th onclick="sortTable('pastTable', 6)">Notes<span class="arrow">▲</span></th>
+          </tr>
+        </thead>
+        <tbody>
+          <% pastAppointments.forEach(app => { %>
+            <tr>
+              <td><%= app.firstName %> <%= app.lastName %></td>
+              <td><%= app.email %></td>
+              <td><%= app.phone %></td>
+              <td><%= app.date %></td>
+              <td><%= app.time %> <%= app.period %></td>
+              <td><%= app.serviceType %></td>
+              <td><%= app.notes || '—' %></td>
+            </tr>
+          <% }) %>
+        </tbody>
+      </table>
+    </section>
+  </div>
+
+  <div id="appointmentModal">
+    <div class="modal-content">
+      <button class="close-button" onclick="closeModal()">&times;</button>
+      <h3 id="modalDateTitle"></h3>
+      <div id="modalAppointmentsList"></div>
+    </div>
+  </div>
+
+  <%- include('../../partials/footer') %>
+
+  <script src="https://cdn.jsdelivr.net/npm/fullcalendar@5.11.3/main.min.js"></script>
+  <script>
+    const allAppointments = <%- JSON.stringify([
+      ...upcomingAppointments.map(app => ({
+        name: `${app.firstName} ${app.lastName}`,
+        date: app.date,
+        time: `${app.time} ${app.period}`,
+        service: app.serviceType,
+        email: app.email,
+        phone: app.phone,
+        notes: app.notes || '—',
+        type: "Upcoming"
+      })),
+      ...pastAppointments.map(app => ({
+        name: `${app.firstName} ${app.lastName}`,
+        date: app.date,
+        time: `${app.time} ${app.period}`,
+        service: app.serviceType,
+        email: app.email,
+        phone: app.phone,
+        notes: app.notes || '—',
+        type: "Past"
+      }))
+    ]) %>;
+
+    document.addEventListener("DOMContentLoaded", function () {
+      const calendarEl = document.getElementById("calendar");
+      const calendarTitle = document.getElementById("calendar-title");
+
+      const calendar = new FullCalendar.Calendar(calendarEl, {
+        initialView: 'dayGridMonth',
+        headerToolbar: {
+          left: 'prev,next today',
+          center: '', // hides FullCalendar title
+          right: ''
+        },
+        themeSystem: 'standard',
+
+        // ✅ Custom month title logic
+        datesSet: function () {
+          const currentDate = calendar.getDate();
+          const month = currentDate.toLocaleString('default', { month: 'long' });
+          const year = currentDate.getFullYear();
+          calendarTitle.textContent = `${month} ${year}`;
+        },
+
+        dateClick: function (info) {
+          const clickedDate = info.dateStr;
+          const matchingAppointments = allAppointments.filter(app => app.date === clickedDate);
+          if (matchingAppointments.length > 0) {
+            document.getElementById("modalDateTitle").innerText = "Appointments for " + clickedDate;
+            const listEl = document.getElementById("modalAppointmentsList");
+            listEl.innerHTML = "";
+            matchingAppointments.forEach(app => {
+              listEl.innerHTML += `
+                <div style="margin-bottom: 15px; padding: 10px; border: 1px solid #ccc; border-radius: 6px;">
+                  <strong>${app.name}</strong><br>
+                  Time: ${app.time}<br>
+                  Service: ${app.service}<br>
+                  Email: ${app.email}<br>
+                  Phone: ${app.phone}<br>
+                  Notes: ${app.notes}
+                </div>`;
+            });
+            document.getElementById("appointmentModal").style.display = "flex";
+          } else {
+            alert("No appointments for this date.");
+          }
+        },
+
+        events: allAppointments.map(app => ({
+          title: `${app.name} - ${app.service}`,
+          start: app.date,
+          color: app.type === "Upcoming" ? "#90ee90" : "#ccc"
+        }))
+      });
+
+      calendar.render();
+    });
+
+    function closeModal() {
+      document.getElementById("appointmentModal").style.display = "none";
+    }
+
+    function searchAppointments(type) {
+      const inputId = type === 'upcoming' ? 'upcomingSearch' : 'pastSearch';
+      const tableId = type === 'upcoming' ? 'upcomingTable' : 'pastTable';
+      const searchInput = document.getElementById(inputId).value.toLowerCase();
+      const table = document.getElementById(tableId);
+      const rows = table.getElementsByTagName('tr');
+      for (let i = 1; i < rows.length; i++) {
+        const cells = rows[i].getElementsByTagName('td');
+        let match = false;
+        for (let j = 0; j < cells.length; j++) {
+          if (cells[j].textContent.toLowerCase().includes(searchInput)) {
+            match = true;
+            break;
+          }
+        }
+        rows[i].style.display = match ? '' : 'none';
+      }
+    }
+    function closeModal() {
+    document.getElementById("appointmentModal").style.display = "none";
+  }
+
+  function searchAppointments(type) {
+    const inputId = type === 'upcoming' ? 'upcomingSearch' : 'pastSearch';
+    const tableId = type === 'upcoming' ? 'upcomingTable' : 'pastTable';
+    const searchInput = document.getElementById(inputId).value.toLowerCase();
+    const table = document.getElementById(tableId);
+    const rows = table.getElementsByTagName('tr');
+    for (let i = 1; i < rows.length; i++) {
+      const cells = rows[i].getElementsByTagName('td');
+      let match = false;
+      for (let j = 0; j < cells.length; j++) {
+        if (cells[j].textContent.toLowerCase().includes(searchInput)) {
+          match = true;
+          break;
+        }
+      }
+      rows[i].style.display = match ? '' : 'none';
+    }
+  }
+
+  // ✅ ADD THIS SORT FUNCTION BACK:
+  function sortTable(tableId, colIndex) {
+    const table = document.getElementById(tableId);
+    const rows = Array.from(table.rows).slice(1);
+    let asc = table.getAttribute("data-sort-dir") !== "desc";
+
+    rows.sort((a, b) => {
+      const aText = a.cells[colIndex].textContent.trim().toLowerCase();
+      const bText = b.cells[colIndex].textContent.trim().toLowerCase();
+      return asc ? aText.localeCompare(bText) : bText.localeCompare(aText);
+    });
+
+    const tbody = table.querySelector("tbody");
+    rows.forEach(row => tbody.appendChild(row));
+    table.setAttribute("data-sort-dir", asc ? "desc" : "asc");
+
+    // Update sort arrow indicators
+    const headers = table.querySelectorAll("th");
+    headers.forEach((th, i) => {
+      const arrow = th.querySelector(".arrow");
+      if (arrow) arrow.textContent = i === colIndex ? (asc ? "▼" : "▲") : "▲";
+    });
+  }
+  </script>
+</body>
+</html>
