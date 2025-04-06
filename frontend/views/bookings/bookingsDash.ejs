@@ -22,6 +22,15 @@
     }
     h1, h2 { color: white; margin-bottom: 20px; }
     .calendar-section { margin-bottom: 50px; }
+
+    #calendar-title {
+      text-align: right;
+      font-weight: bold;
+      font-size: 1.25rem;
+      margin-bottom: 10px;
+      color: white;
+    }
+
     #calendar {
       background-color: white;
       color: black;
@@ -29,6 +38,11 @@
       border-radius: 10px;
       box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
     }
+
+    .fc-toolbar-title {
+      display: none !important;
+    }
+
     .search-container { margin-bottom: 20px; }
     .search-container input {
       padding: 10px;
@@ -112,6 +126,7 @@
 
     <section class="calendar-section">
       <h2><i class="fas fa-calendar"></i> Schedule Overview</h2>
+      <div id="calendar-title">Loading month...</div> <!-- ✅ Custom Month Display -->
       <div id="calendar"></div>
     </section>
 
@@ -217,33 +232,28 @@
       }))
     ]) %>;
 
-    function sortTable(tableId, colIndex) {
-      const table = document.getElementById(tableId);
-      const rows = Array.from(table.rows).slice(1);
-      let asc = table.getAttribute("data-sort-dir") !== "desc";
-      rows.sort((a, b) => {
-        const aText = a.cells[colIndex].textContent.trim().toLowerCase();
-        const bText = b.cells[colIndex].textContent.trim().toLowerCase();
-        return asc ? aText.localeCompare(bText) : bText.localeCompare(aText);
-      });
-      const tbody = table.querySelector("tbody");
-      rows.forEach(row => tbody.appendChild(row));
-      table.setAttribute("data-sort-dir", asc ? "desc" : "asc");
-
-      const headers = table.querySelectorAll("th");
-      headers.forEach((th, i) => {
-        const arrow = th.querySelector(".arrow");
-        if (arrow) arrow.textContent = i === colIndex ? (asc ? "▼" : "▲") : "▲";
-      });
-    }
-
     document.addEventListener("DOMContentLoaded", function () {
       const calendarEl = document.getElementById("calendar");
+      const calendarTitle = document.getElementById("calendar-title");
+
       const calendar = new FullCalendar.Calendar(calendarEl, {
         initialView: 'dayGridMonth',
-        headerToolbar: { start: 'prev,next today', center: 'title', end: '' },
+        headerToolbar: {
+          left: 'prev,next today',
+          center: '', // hides FullCalendar title
+          right: ''
+        },
         themeSystem: 'standard',
-        dateClick: function(info) {
+
+        // ✅ Custom month title logic
+        datesSet: function () {
+          const currentDate = calendar.getDate();
+          const month = currentDate.toLocaleString('default', { month: 'long' });
+          const year = currentDate.getFullYear();
+          calendarTitle.textContent = `${month} ${year}`;
+        },
+
+        dateClick: function (info) {
           const clickedDate = info.dateStr;
           const matchingAppointments = allAppointments.filter(app => app.date === clickedDate);
           if (matchingAppointments.length > 0) {
@@ -266,12 +276,14 @@
             alert("No appointments for this date.");
           }
         },
+
         events: allAppointments.map(app => ({
           title: `${app.name} - ${app.service}`,
           start: app.date,
           color: app.type === "Upcoming" ? "#90ee90" : "#ccc"
         }))
       });
+
       calendar.render();
     });
 
@@ -297,6 +309,52 @@
         rows[i].style.display = match ? '' : 'none';
       }
     }
+    function closeModal() {
+    document.getElementById("appointmentModal").style.display = "none";
+  }
+
+  function searchAppointments(type) {
+    const inputId = type === 'upcoming' ? 'upcomingSearch' : 'pastSearch';
+    const tableId = type === 'upcoming' ? 'upcomingTable' : 'pastTable';
+    const searchInput = document.getElementById(inputId).value.toLowerCase();
+    const table = document.getElementById(tableId);
+    const rows = table.getElementsByTagName('tr');
+    for (let i = 1; i < rows.length; i++) {
+      const cells = rows[i].getElementsByTagName('td');
+      let match = false;
+      for (let j = 0; j < cells.length; j++) {
+        if (cells[j].textContent.toLowerCase().includes(searchInput)) {
+          match = true;
+          break;
+        }
+      }
+      rows[i].style.display = match ? '' : 'none';
+    }
+  }
+
+  // ✅ ADD THIS SORT FUNCTION BACK:
+  function sortTable(tableId, colIndex) {
+    const table = document.getElementById(tableId);
+    const rows = Array.from(table.rows).slice(1);
+    let asc = table.getAttribute("data-sort-dir") !== "desc";
+
+    rows.sort((a, b) => {
+      const aText = a.cells[colIndex].textContent.trim().toLowerCase();
+      const bText = b.cells[colIndex].textContent.trim().toLowerCase();
+      return asc ? aText.localeCompare(bText) : bText.localeCompare(aText);
+    });
+
+    const tbody = table.querySelector("tbody");
+    rows.forEach(row => tbody.appendChild(row));
+    table.setAttribute("data-sort-dir", asc ? "desc" : "asc");
+
+    // Update sort arrow indicators
+    const headers = table.querySelectorAll("th");
+    headers.forEach((th, i) => {
+      const arrow = th.querySelector(".arrow");
+      if (arrow) arrow.textContent = i === colIndex ? (asc ? "▼" : "▲") : "▲";
+    });
+  }
   </script>
 </body>
 </html>
