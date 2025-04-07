@@ -6,78 +6,87 @@
   <title>Booking Requests</title>
   <link href="https://fonts.googleapis.com/css2?family=Josefin+Sans:wght@300;500;700&display=swap" rel="stylesheet">
   <style>
-    * { margin: 0; padding: 0; box-sizing: border-box; }
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
 
-    html, body {
-      height: 100%;
-      display: flex;
-      flex-direction: column;
-      font-family: 'Josefin Sans', sans-serif;
-      background-color: #5b5f7c;
-      color: white;
-    }
+html, body {
+  font-family: 'Josefin Sans', sans-serif;
+  background-color: #5b5f7c;
+  color: white;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
 
-    .container {
-      flex: 1;
-      padding: 30px;
-      max-width: 1200px;
-      margin: 0 auto;
-    }
+.container {
+  flex: 1; /* Ensures the main content grows to fill the available space */
+  padding: 30px;
+  max-width: 1200px;
+  margin: 0 auto;
+  overflow-x: auto; /* Allow container to scroll horizontally if needed */
+}
 
-    h2 {
-      margin-bottom: 20px;
-    }
+h2 {
+  margin-bottom: 20px;
+}
 
-    .search-container {
-      margin-bottom: 20px;
-    }
+.search-container {
+  margin-bottom: 20px;
+}
 
-    .search-container input {
-      padding: 10px;
-      font-size: 16px;
-      width: 100%;
-      max-width: 300px;
-      border-radius: 5px;
-      border: none;
-    }
+.search-container input {
+  padding: 10px;
+  font-size: 16px;
+  width: 100%;
+  max-width: 300px;
+  border-radius: 5px;
+  border: none;
+}
 
-    table {
-      width: 100%;
-      border-collapse: collapse;
-      background-color: white;
-      color: black;
-      border-radius: 10px;
-      overflow: hidden;
-      margin-bottom: 40px;
-    }
+table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-bottom: 40px;
+  background-color: white;
+  color: black;
+  border-radius: 10px;
+  overflow: hidden;
+  /* Removed display: block and max-height to make it a normal table */
+}
 
-    th, td {
-      padding: 12px;
-      border-bottom: 1px solid #ccc;
-      text-align: left;
-    }
+th, td {
+  padding: 12px;
+  border-bottom: 1px solid #ccc;
+  text-align: left;
+}
 
-    th {
-      background-color: #404473;
-      color: white;
-      cursor: pointer;
-      user-select: none;
-    }
+th {
+  background-color: #404473;
+  color: white;
+  cursor: pointer;
+  user-select: none;
+}
 
-    th .arrow {
-      margin-left: 5px;
-      font-size: 0.8em;
-    }
+th .arrow {
+  margin-left: 5px;
+  font-size: 0.8em;
+  display: none; /* Arrows hidden initially */
+}
 
-    tr:nth-child(even) { background-color: #f9f9f9; }
-    tr:hover { background-color: #f1f1f1; }
-    td {
-  vertical-align: middle;
+tr:nth-child(even) {
+  background-color: #f9f9f9;
+}
+
+tr:hover {
+  background-color: #f1f1f1;
 }
 
 .request-buttons {
   text-align: center;
-  padding: 0;
+  white-space: nowrap; /* Keep buttons on same line */
 }
 
 .request-buttons button {
@@ -91,61 +100,86 @@
   display: inline-block;
 }
 
-    .approve {
-      background-color: #90ee90;
-    }
+.approve {
+  background-color: #90ee90;
+}
 
-    .deny {
-      background-color: #ff7f7f;
-    }
+.deny {
+  background-color: #ff7f7f;
+}
 
-    .notes-cell {
-      max-width: 200px;
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
-    }
+.notes-cell {
+  max-width: 200px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
 
-    .clickable-row {
-      cursor: pointer;
-    }
+.clickable-row {
+  cursor: pointer;
+}
 
-    #notesModal {
-      display: none;
-      position: fixed;
-      top: 50%;
-      left: 50%;
-      transform: translate(-50%, -50%);
-      background: white;
-      padding: 20px;
-      border-radius: 10px;
-      max-width: 600px;
-      z-index: 1000;
-      color: black;
-    }
+footer {
+  margin-top: auto; /* Pushes footer to the bottom of the page */
+}
 
-    #modalOverlay {
-      display: none;
-      position: fixed;
-      top: 0; left: 0;
-      width: 100%; height: 100%;
-      background: rgba(0, 0, 0, 0.5);
-      z-index: 999;
-    }
+.hidden {
+  display: none !important; /* Added class to hide rows dynamically */
+}
 
-    #notesModal button {
-      margin-top: 10px;
-      background-color: #404473;
-      color: white;
-      padding: 8px 12px;
-      border: none;
-      border-radius: 5px;
-      cursor: pointer;
-    }
+/* Media query for smaller screens */
+@media (max-width: 1024px) {
+  .container {
+    overflow-x: auto; /* Enable horizontal scrolling for smaller screens */
+  }
+  
+  table {
+    width: 100%;
+    min-width: 900px; /* Ensure table has minimum width to prevent columns from squishing */
+  }
+}
+#notesModal {
+  display: none; /* Hidden by default */
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background-color: white;
+  padding: 20px;
+  border-radius: 10px;
+  max-width: 600px;
+  width: 80%;
+  z-index: 1000;
+  color: black;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+  overflow: auto;
+}
 
-    .modal-field {
-      margin-bottom: 10px;
-    }
+#modalOverlay {
+  display: none; /* Hidden by default */
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.5);
+  z-index: 999;
+}
+
+#notesModal button {
+  margin-top: 10px;
+  background-color: #404473;
+  color: white;
+  padding: 8px 12px;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+.modal-field {
+  margin-bottom: 10px;
+}
+
   </style>
 </head>
 <body>
@@ -160,14 +194,14 @@
     <table id="requestsTable" data-sort-dir="asc">
       <thead>
         <tr>
-          <th onclick="sortTable('requestsTable', 0)">First Name<span class="arrow">▲</span></th>
-          <th onclick="sortTable('requestsTable', 1)">Last Name<span class="arrow">▲</span></th>
-          <th onclick="sortTable('requestsTable', 2)">Date<span class="arrow">▲</span></th>
-          <th onclick="sortTable('requestsTable', 3)">Time<span class="arrow">▲</span></th>
-          <th onclick="sortTable('requestsTable', 4)">Email<span class="arrow">▲</span></th>
-          <th onclick="sortTable('requestsTable', 5)">Phone<span class="arrow">▲</span></th>
-          <th onclick="sortTable('requestsTable', 6)">Service<span class="arrow">▲</span></th>
-          <th onclick="sortTable('requestsTable', 7)">Notes<span class="arrow">▲</span></th>
+          <th onclick="sortTable(0)">First Name<span class="arrow">▲</span></th>
+          <th onclick="sortTable(1)">Last Name<span class="arrow">▲</span></th>
+          <th onclick="sortTable(2)">Date<span class="arrow">▲</span></th>
+          <th onclick="sortTable(3)">Time<span class="arrow">▲</span></th>
+          <th onclick="sortTable(4)">Email<span class="arrow">▲</span></th>
+          <th onclick="sortTable(5)">Phone<span class="arrow">▲</span></th>
+          <th onclick="sortTable(6)">Service<span class="arrow">▲</span></th>
+          <th onclick="sortTable(7)">Notes<span class="arrow">▲</span></th>
           <th>Request</th>
         </tr>
       </thead>
@@ -202,10 +236,6 @@
       </tbody>
     </table>
   </div>
-
-  <%- include('../../partials/footer') %>
-
-  <!-- Modal -->
   <div id="modalOverlay" onclick="hideModal()"></div>
   <div id="notesModal">
     <div class="modal-field"><strong>Name:</strong> <span id="modalName"></span></div>
@@ -216,116 +246,165 @@
     <div class="modal-field"><strong>Notes:</strong> <span id="modalNotes"></span></div>
     <button onclick="hideModal()">Close</button>
   </div>
+  
+  <%- include('../../partials/footer') %>
 
   <script>
-    document.addEventListener('DOMContentLoaded', () => {
-      function sortTable(tableId, colIndex) {
-        const table = document.getElementById(tableId);
-        const rows = Array.from(table.rows).slice(1);
-        let asc = table.getAttribute("data-sort-dir") !== "desc";
-        rows.sort((a, b) => {
-          const aText = a.cells[colIndex].textContent.trim().toLowerCase();
-          const bText = b.cells[colIndex].textContent.trim().toLowerCase();
-          return asc ? aText.localeCompare(bText) : bText.localeCompare(aText);
-        });
-        const tbody = table.querySelector("tbody");
-        rows.forEach(row => tbody.appendChild(row));
-        table.setAttribute("data-sort-dir", asc ? "desc" : "asc");
+    // Sorting function as per W3Schools example
+    function sortTable(n) {
+      var table, rows, switching, i, x, y, shouldSwitch, dir, switchcount = 0;
+      table = document.getElementById("requestsTable");
+      switching = true;
+      dir = "asc"; // Set the sorting direction to ascending
 
-        const headers = table.querySelectorAll("th");
-        headers.forEach((th, i) => {
-          const arrow = th.querySelector(".arrow");
-          if (arrow) arrow.textContent = i === colIndex ? (asc ? "▼" : "▲") : "▲";
-        });
-      }
+      while (switching) {
+        switching = false;
+        rows = table.rows;
 
-      window.searchRequests = function () {
-        const input = document.getElementById("requestSearch").value.toLowerCase();
-        const table = document.getElementById("requestsTable");
-        const rows = table.getElementsByTagName("tr");
+        for (i = 1; i < (rows.length - 1); i++) {
+          shouldSwitch = false;
+          x = rows[i].getElementsByTagName("TD")[n];
+          y = rows[i + 1].getElementsByTagName("TD")[n];
 
-        for (let i = 1; i < rows.length; i++) {
-          const cells = rows[i].getElementsByTagName("td");
-          let match = false;
-          for (let j = 0; j < cells.length - 1; j++) {
-            if (cells[j].textContent.toLowerCase().includes(input)) {
-              match = true;
+          if (dir == "asc") {
+            if (x.innerHTML.toLowerCase() > y.innerHTML.toLowerCase()) {
+              shouldSwitch = true;
+              break;
+            }
+          } else if (dir == "desc") {
+            if (x.innerHTML.toLowerCase() < y.innerHTML.toLowerCase()) {
+              shouldSwitch = true;
               break;
             }
           }
-          rows[i].style.display = match ? "" : "none";
         }
-      };
 
-      document.querySelectorAll('.approve').forEach(button => {
-        button.addEventListener('click', async (event) => {
-          event.stopPropagation();
-          const bookingId = event.currentTarget.dataset.id;
-          try {
-            const response = await fetch(`/bookings/approve/${bookingId}`, {
-              method: 'POST',
-              headers: { 'Content-Type': 'application/json' }
-            });
-            const result = await response.json();
-            if (result.success) {
-              alert('Booking approved!');
-              location.reload();
-            } else {
-              alert('Error approving booking.');
-            }
-          } catch (error) {
-            console.error('Approve JS error:', error);
+        if (shouldSwitch) {
+          rows[i].parentNode.insertBefore(rows[i + 1], rows[i]);
+          switching = true;
+          switchcount++;
+        } else {
+          if (switchcount == 0 && dir == "asc") {
+            dir = "desc";
+            switching = true;
+          }
+        }
+      }
+
+      // Toggle arrows
+      const arrows = document.querySelectorAll('th .arrow');
+      arrows.forEach((arrow, index) => {
+        if (index === n) {
+          arrow.style.display = 'inline';  // Show arrow when sorting this column
+          arrow.textContent = dir === 'asc' ? '▲' : '▼';  // Change the arrow direction
+        } else {
+          arrow.style.display = 'none'; // Hide arrows on other columns
+        }
+      });
+    }
+
+    // Search function for table rows
+    window.searchRequests = function () {
+  const input = document.getElementById("requestSearch").value.toLowerCase();
+  const table = document.getElementById("requestsTable");
+  const rows = table.getElementsByTagName("tr");
+
+  for (let i = 1; i < rows.length; i++) {
+    const cells = rows[i].getElementsByTagName("td");
+    let match = false;
+    for (let j = 0; j < cells.length - 1; j++) {  // Exclude the last column (Approve/Deny)
+      if (cells[j].textContent.toLowerCase().includes(input)) {
+        match = true;
+        break;
+      }
+    }
+    
+    // Hide rows that do not match the search
+    rows[i].style.display = match ? "" : "none";
+
+    // Ensure the "Approve" and "Deny" buttons remain visible
+    const buttonColumn = rows[i].getElementsByClassName('request-buttons')[0];
+    if (match) {
+      buttonColumn.style.display = 'table-cell';  // Ensure buttons are visible
+    } else {
+      buttonColumn.style.display = 'none';  // Hide buttons with the row if needed
+    }
+  }
+};
+
+
+    // Approve booking
+    document.querySelectorAll('.approve').forEach(button => {
+      button.addEventListener('click', async (event) => {
+        event.stopPropagation();
+        const bookingId = event.currentTarget.dataset.id;
+        try {
+          const response = await fetch(`/bookings/approve/${bookingId}`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' }
+          });
+          const result = await response.json();
+          if (result.success) {
+            alert('Booking approved!');
+            location.reload();
+          } else {
             alert('Error approving booking.');
           }
-        });
-      });
-
-      document.querySelectorAll('.deny').forEach(button => {
-  button.addEventListener('click', async event => {
-    event.stopPropagation();
-    const bookingId = event.target.getAttribute('data-id');
-
-    const confirmed = confirm('Are you sure you want to deny this booking? This action cannot be undone.');
-    if (!confirmed) return;
-
-    try {
-      const response = await fetch(`/bookings/deny/${bookingId}`, {
-        method: 'DELETE',
-        headers: { 'Content-Type': 'application/json' }
-      });
-      const result = await response.json();
-      if (result.success) {
-        alert('Booking denied!');
-        location.reload();
-      } else {
-        alert('Error denying booking.');
-      }
-    } catch (error) {
-      console.error(error);
-      alert('Error denying booking.');
-    }
-  });
-});
-
-      document.querySelectorAll('.clickable-row').forEach(row => {
-        row.addEventListener('click', () => {
-          const info = JSON.parse(row.getAttribute('data-info'));
-          document.getElementById('modalName').textContent = info.name;
-          document.getElementById('modalEmail').textContent = info.email;
-          document.getElementById('modalPhone').textContent = info.phone;
-          document.getElementById('modalService').textContent = info.service;
-          document.getElementById('modalDateTime').textContent = `${info.date} at ${info.time}`;
-          document.getElementById('modalNotes').textContent = info.notes;
-          document.getElementById('modalOverlay').style.display = 'block';
-          document.getElementById('notesModal').style.display = 'block';
-        });
+        } catch (error) {
+          console.error('Approve JS error:', error);
+          alert('Error approving booking.');
+        }
       });
     });
 
-    function hideModal() {
-      document.getElementById('notesModal').style.display = 'none';
-      document.getElementById('modalOverlay').style.display = 'none';
-    }
+    // Deny booking
+    document.querySelectorAll('.deny').forEach(button => {
+      button.addEventListener('click', async event => {
+        event.stopPropagation();
+        const bookingId = event.target.getAttribute('data-id');
+        const confirmed = confirm('Are you sure you want to deny this booking? This action cannot be undone.');
+        if (!confirmed) return;
+
+        try {
+          const response = await fetch(`/bookings/deny/${bookingId}`, {
+            method: 'DELETE',
+            headers: { 'Content-Type': 'application/json' }
+          });
+          const result = await response.json();
+          if (result.success) {
+            alert('Booking denied!');
+            location.reload();
+          } else {
+            alert('Error denying booking.');
+          }
+        } catch (error) {
+          console.error(error);
+          alert('Error denying booking.');
+        }
+      });
+    });
+    // Add event listeners to the rows for displaying the modal on click
+    document.querySelectorAll('.clickable-row').forEach(row => {
+  row.addEventListener('click', () => {
+    const info = JSON.parse(row.getAttribute('data-info'));
+    document.getElementById('modalName').textContent = info.name;
+    document.getElementById('modalEmail').textContent = info.email;
+    document.getElementById('modalPhone').textContent = info.phone;
+    document.getElementById('modalService').textContent = info.service;
+    document.getElementById('modalDateTime').textContent = `${info.date} at ${info.time}`;
+    document.getElementById('modalNotes').textContent = info.notes;
+
+    // Show the modal and overlay
+    document.getElementById('modalOverlay').style.display = 'block';
+    document.getElementById('notesModal').style.display = 'block';
+  });
+});
+
+function hideModal() {
+  document.getElementById('notesModal').style.display = 'none';
+  document.getElementById('modalOverlay').style.display = 'none';
+}
+
   </script>
 </body>
 </html>
