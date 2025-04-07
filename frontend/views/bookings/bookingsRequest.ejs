@@ -28,40 +28,6 @@
       margin-bottom: 20px;
     }
 
-    .form-row {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 10px;
-      margin-bottom: 20px;
-    }
-
-    input, select, button {
-      padding: 10px;
-      border-radius: 5px;
-      border: none;
-      font-size: 14px;
-    }
-
-    input, select {
-      flex: 1 1 200px;
-    }
-
-    button {
-      background-color: #B29F68;
-      color: white;
-      cursor: pointer;
-    }
-
-    .date-group {
-      align-items: center;
-      gap: 10px;
-    }
-
-    .date-group label {
-      font-size: 14px;
-      color: white;
-    }
-
     .search-container {
       margin-bottom: 20px;
     }
@@ -105,13 +71,25 @@
 
     tr:nth-child(even) { background-color: #f9f9f9; }
     tr:hover { background-color: #f1f1f1; }
+    td {
+  vertical-align: middle;
+}
 
-    .request-buttons button {
-      margin-right: 5px;
-      padding: 5px 10px;
-      border-radius: 4px;
-      font-size: 12px;
-    }
+.request-buttons {
+  text-align: center;
+  padding: 0;
+}
+
+.request-buttons button {
+  width: 80px;
+  padding: 6px 0;
+  font-size: 13px;
+  border-radius: 4px;
+  text-align: center;
+  border: none;
+  cursor: pointer;
+  display: inline-block;
+}
 
     .approve {
       background-color: #90ee90;
@@ -120,6 +98,54 @@
     .deny {
       background-color: #ff7f7f;
     }
+
+    .notes-cell {
+      max-width: 200px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .clickable-row {
+      cursor: pointer;
+    }
+
+    #notesModal {
+      display: none;
+      position: fixed;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      background: white;
+      padding: 20px;
+      border-radius: 10px;
+      max-width: 600px;
+      z-index: 1000;
+      color: black;
+    }
+
+    #modalOverlay {
+      display: none;
+      position: fixed;
+      top: 0; left: 0;
+      width: 100%; height: 100%;
+      background: rgba(0, 0, 0, 0.5);
+      z-index: 999;
+    }
+
+    #notesModal button {
+      margin-top: 10px;
+      background-color: #404473;
+      color: white;
+      padding: 8px 12px;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+
+    .modal-field {
+      margin-bottom: 10px;
+    }
   </style>
 </head>
 <body>
@@ -127,7 +153,6 @@
 
   <div class="container">
     <h2>Booking Requests</h2>
-
     <div class="search-container">
       <input type="text" id="requestSearch" placeholder="Search booking requests..." onkeyup="searchRequests()">
     </div>
@@ -148,7 +173,16 @@
       </thead>
       <tbody>
         <% bookingRequests.forEach(req => { %>
-          <tr>
+          <tr class="clickable-row" 
+              data-info='<%- JSON.stringify({
+                name: `${req.firstName} ${req.lastName}`,
+                email: req.email,
+                phone: req.phone,
+                date: req.date,
+                time: `${req.time} ${req.period}`,
+                service: req.serviceType,
+                notes: req.notes || "—"
+              }) %>'>
             <td><%= req.firstName %></td>
             <td><%= req.lastName %></td>
             <td><%= req.date %></td>
@@ -156,10 +190,12 @@
             <td><%= req.email %></td>
             <td><%= req.phone %></td>
             <td><%= req.serviceType %></td>
-            <td><%= req.notes || '—' %></td>
+            <td class="notes-cell">
+              <%= (req.notes && req.notes.length > 100) ? req.notes.slice(0, 100) + '...' : (req.notes || '—') %>
+            </td>
             <td class="request-buttons">
-              <button class="approve">Approve</button>
-              <button class="deny">Deny</button>
+              <button class="approve" data-id="<%= req.id %>">Approve</button>
+              <button class="deny" data-id="<%= req.id %>">Deny</button>
             </td>
           </tr>
         <% }) %>
@@ -169,43 +205,126 @@
 
   <%- include('../../partials/footer') %>
 
+  <!-- Modal -->
+  <div id="modalOverlay" onclick="hideModal()"></div>
+  <div id="notesModal">
+    <div class="modal-field"><strong>Name:</strong> <span id="modalName"></span></div>
+    <div class="modal-field"><strong>Email:</strong> <span id="modalEmail"></span></div>
+    <div class="modal-field"><strong>Phone:</strong> <span id="modalPhone"></span></div>
+    <div class="modal-field"><strong>Service:</strong> <span id="modalService"></span></div>
+    <div class="modal-field"><strong>Date & Time:</strong> <span id="modalDateTime"></span></div>
+    <div class="modal-field"><strong>Notes:</strong> <span id="modalNotes"></span></div>
+    <button onclick="hideModal()">Close</button>
+  </div>
+
   <script>
-    function sortTable(tableId, colIndex) {
-      const table = document.getElementById(tableId);
-      const rows = Array.from(table.rows).slice(1);
-      let asc = table.getAttribute("data-sort-dir") !== "desc";
-      rows.sort((a, b) => {
-        const aText = a.cells[colIndex].textContent.trim().toLowerCase();
-        const bText = b.cells[colIndex].textContent.trim().toLowerCase();
-        return asc ? aText.localeCompare(bText) : bText.localeCompare(aText);
-      });
-      const tbody = table.querySelector("tbody");
-      rows.forEach(row => tbody.appendChild(row));
-      table.setAttribute("data-sort-dir", asc ? "desc" : "asc");
+    document.addEventListener('DOMContentLoaded', () => {
+      function sortTable(tableId, colIndex) {
+        const table = document.getElementById(tableId);
+        const rows = Array.from(table.rows).slice(1);
+        let asc = table.getAttribute("data-sort-dir") !== "desc";
+        rows.sort((a, b) => {
+          const aText = a.cells[colIndex].textContent.trim().toLowerCase();
+          const bText = b.cells[colIndex].textContent.trim().toLowerCase();
+          return asc ? aText.localeCompare(bText) : bText.localeCompare(aText);
+        });
+        const tbody = table.querySelector("tbody");
+        rows.forEach(row => tbody.appendChild(row));
+        table.setAttribute("data-sort-dir", asc ? "desc" : "asc");
 
-      const headers = table.querySelectorAll("th");
-      headers.forEach((th, i) => {
-        const arrow = th.querySelector(".arrow");
-        if (arrow) arrow.textContent = i === colIndex ? (asc ? "▼" : "▲") : "▲";
-      });
-    }
-
-    function searchRequests() {
-      const input = document.getElementById("requestSearch").value.toLowerCase();
-      const table = document.getElementById("requestsTable");
-      const rows = table.getElementsByTagName("tr");
-
-      for (let i = 1; i < rows.length; i++) {
-        const cells = rows[i].getElementsByTagName("td");
-        let match = false;
-        for (let j = 0; j < cells.length - 1; j++) { // Skip last column
-          if (cells[j].textContent.toLowerCase().includes(input)) {
-            match = true;
-            break;
-          }
-        }
-        rows[i].style.display = match ? "" : "none";
+        const headers = table.querySelectorAll("th");
+        headers.forEach((th, i) => {
+          const arrow = th.querySelector(".arrow");
+          if (arrow) arrow.textContent = i === colIndex ? (asc ? "▼" : "▲") : "▲";
+        });
       }
+
+      window.searchRequests = function () {
+        const input = document.getElementById("requestSearch").value.toLowerCase();
+        const table = document.getElementById("requestsTable");
+        const rows = table.getElementsByTagName("tr");
+
+        for (let i = 1; i < rows.length; i++) {
+          const cells = rows[i].getElementsByTagName("td");
+          let match = false;
+          for (let j = 0; j < cells.length - 1; j++) {
+            if (cells[j].textContent.toLowerCase().includes(input)) {
+              match = true;
+              break;
+            }
+          }
+          rows[i].style.display = match ? "" : "none";
+        }
+      };
+
+      document.querySelectorAll('.approve').forEach(button => {
+        button.addEventListener('click', async (event) => {
+          event.stopPropagation();
+          const bookingId = event.currentTarget.dataset.id;
+          try {
+            const response = await fetch(`/bookings/approve/${bookingId}`, {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' }
+            });
+            const result = await response.json();
+            if (result.success) {
+              alert('Booking approved!');
+              location.reload();
+            } else {
+              alert('Error approving booking.');
+            }
+          } catch (error) {
+            console.error('Approve JS error:', error);
+            alert('Error approving booking.');
+          }
+        });
+      });
+
+      document.querySelectorAll('.deny').forEach(button => {
+  button.addEventListener('click', async event => {
+    event.stopPropagation();
+    const bookingId = event.target.getAttribute('data-id');
+
+    const confirmed = confirm('Are you sure you want to deny this booking? This action cannot be undone.');
+    if (!confirmed) return;
+
+    try {
+      const response = await fetch(`/bookings/deny/${bookingId}`, {
+        method: 'DELETE',
+        headers: { 'Content-Type': 'application/json' }
+      });
+      const result = await response.json();
+      if (result.success) {
+        alert('Booking denied!');
+        location.reload();
+      } else {
+        alert('Error denying booking.');
+      }
+    } catch (error) {
+      console.error(error);
+      alert('Error denying booking.');
+    }
+  });
+});
+
+      document.querySelectorAll('.clickable-row').forEach(row => {
+        row.addEventListener('click', () => {
+          const info = JSON.parse(row.getAttribute('data-info'));
+          document.getElementById('modalName').textContent = info.name;
+          document.getElementById('modalEmail').textContent = info.email;
+          document.getElementById('modalPhone').textContent = info.phone;
+          document.getElementById('modalService').textContent = info.service;
+          document.getElementById('modalDateTime').textContent = `${info.date} at ${info.time}`;
+          document.getElementById('modalNotes').textContent = info.notes;
+          document.getElementById('modalOverlay').style.display = 'block';
+          document.getElementById('notesModal').style.display = 'block';
+        });
+      });
+    });
+
+    function hideModal() {
+      document.getElementById('notesModal').style.display = 'none';
+      document.getElementById('modalOverlay').style.display = 'none';
     }
   </script>
 </body>

@@ -3,22 +3,14 @@ from flask_cors import CORS, cross_origin
 from datetime import datetime
 import hashlib
 
-from mainsql import create_connection
-from mainsql import execute_read_query
-from mainsql import execute_query
-
-import maincreds
-
-
+from mainsql import create_connection, execute_read_query, execute_query
+from maincreds import Creds
 
 # ---- Start flask app ----
 app = Flask(__name__)
 CORS(app, resources={r"/*": {"origins": "*"}}, supports_credentials=True,
      allow_headers=["Content-Type", "Authorization"], methods=["GET", "OPTIONS"])
 app.secret_key = 'supersecretkey'
-
-
-
 
 # ---- LOGIN API (Basic Auth with SHA-256) ----
 masterPassword = "5e884898da28047151d0e56f8dc6292773603d0d6aabbdd62a11ef721d1542d8"  # 'password'
@@ -42,231 +34,241 @@ def auth_test():
             return '<h1> Authorized user access </h1>'
     return make_response('Could not verify', 401, {'WWW-Authenticate': 'Basic realm="Login Required"'})
 
-
-
-
 # ---- CLIENT API ----
-# Get all clients
 @app.route('/api/clients', methods=['GET'])
 def api_clients_all():
-
-    myCreds = maincreds.Creds()
+    myCreds = Creds()
     conn = create_connection(myCreds.connectionstring, myCreds.username, myCreds.passwd, myCreds.dataBase)
-    sql = "select * from clients"
+    sql = "SELECT * FROM clients"
     clients = execute_read_query(conn, sql)
     return jsonify(clients)
 
-
-# Add a client as POST method
 @app.route('/api/clients', methods=['POST'])
 def api_add_client():
-
-    request_data = request.get_json()
-    new_fname = request_data['Client_Fname']
-    new_lname = request_data['Client_Lname']
-    new_email = request_data['Client_Email']
-    new_phone = request_data['Client_Phone']
-    # new_date = request_data['Client_Date']
-    # new_time = request_data['Client_Time']
-
-    myCreds = maincreds.Creds()
+    data = request.get_json()
+    sql = f"""
+        INSERT INTO clients (Client_Fname, Client_Lname, Client_Email, Client_Phone)
+        VALUES ('{data['Client_Fname']}', '{data['Client_Lname']}', '{data['Client_Email']}', '{data['Client_Phone']}')
+    """
+    myCreds = Creds()
     conn = create_connection(myCreds.connectionstring, myCreds.username, myCreds.passwd, myCreds.dataBase)
-    sql = "insert into clients (Client_Fname, Client_Lname, Client_Email, Client_Phone) values ('%s','%s','%s','%s')" % (new_fname, new_lname, new_email, new_phone)
-
     execute_query(conn, sql)
-    return "Add new client successfully !"
+    return "Add new client successfully!"
 
-
-# Update a client as PUT method
 @app.route('/api/clients', methods=['PUT'])
 def api_update_client():
-
-    request_data = request.get_json()
-    update_id = request_data['id']
-    new_fname = request_data['Client_Fname']
-    new_lname = request_data['Client_Lname']
-    new_email = request_data['Client_Email']
-    new_phone = request_data['Client_Phone']
-    # new_date = request_data['Client_Date']
-    # new_time = request_data['Client_Time']
-
-    myCreds = maincreds.Creds()
+    data = request.get_json()
+    sql = f"""
+        UPDATE clients SET Client_Fname = '{data['Client_Fname']}', Client_Lname = '{data['Client_Lname']}',
+        Client_Email = '{data['Client_Email']}', Client_Phone = '{data['Client_Phone']}' WHERE id = {data['id']}
+    """
+    myCreds = Creds()
     conn = create_connection(myCreds.connectionstring, myCreds.username, myCreds.passwd, myCreds.dataBase)
-    sql = "update clients set Client_Fname = '%s', Client_Lname = '%s', Client_Email = '%s', Client_Phone = '%s' where id = %s" % (new_fname, new_lname, new_email, new_phone, update_id)
-
     execute_query(conn, sql)
-    return f"Client with Client ID {update_id} updated successfully !"
+    return f"Client with Client ID {data['id']} updated successfully!"
 
-
-# Delete a client with DELETE method
 @app.route('/api/clients', methods=['DELETE'])
 def api_delete_client_byID():
-    
-
-    request_data = request.get_json()
-    id_to_delete = request_data['id']
-    
-    myCreds = maincreds.Creds()
+    id_to_delete = request.get_json()['id']
+    sql = f"DELETE FROM clients WHERE id = '{id_to_delete}'"
+    myCreds = Creds()
     conn = create_connection(myCreds.connectionstring, myCreds.username, myCreds.passwd, myCreds.dataBase)
-    sql = "delete from clients where id = '%s'" % (id_to_delete)
     execute_query(conn, sql)
-        
-    return "Delete clients request successfully !"
-
-
-
+    return "Delete clients request successfully!"
 
 # ---- BOOKING API ----
-# Get all bookings
 @app.route('/api/booking', methods=['GET'])
 def api_bookings_all():
-
-    myCreds = maincreds.Creds()
+    myCreds = Creds()
     conn = create_connection(myCreds.connectionstring, myCreds.username, myCreds.passwd, myCreds.dataBase)
-    sql = "select * from booking"
+
+    sql = """
+    SELECT 
+        c.Client_FName AS firstName,
+        c.Client_LName AS lastName,
+        c.Client_Email AS email,
+        c.Client_Phone AS phone,
+        b.Booking_Date AS date,
+        b.Booking_Service AS serviceType,
+        b.Booking_Status AS status,
+        b.Booking_Notes AS notes
+    FROM Booking b
+    JOIN Clients c ON b.Client_ID = c.Client_ID;
+    """
     bookings = execute_read_query(conn, sql)
     return jsonify(bookings)
 
-
-# Add a booking as POST method
-@app.route('/api/booking', methods=['POST'])
-def api_add_booking():
-
-    request_data = request.get_json()
-    new_datetime = request_data['Booking_Date']
-    new_service = request_data['Booking_Service']
-    new_status = request_data['Booking_Status']
-
-    myCreds = maincreds.Creds()
+@app.route('/api/booking-requests', methods=['GET'])
+def get_pending_bookings():
+    myCreds = Creds()
     conn = create_connection(myCreds.connectionstring, myCreds.username, myCreds.passwd, myCreds.dataBase)
-    sql = "insert into booking (Booking_Date, Booking_Service, Booking_Status) values ('%s','%s', '%s')" % (new_datetime, new_service, new_status)
+    if conn is None:
+        return jsonify({"error": "Database connection failed"}), 500
 
+    sql = """
+        SELECT 
+            b.Booking_ID,
+            c.Client_ID,
+            c.Client_FName AS firstName,
+            c.Client_LName AS lastName,
+            c.Client_Email AS email,
+            c.Client_Phone AS phone,
+            b.Booking_Date AS date,
+            b.Booking_Service AS serviceType,
+            b.Booking_Status AS status,
+            b.Booking_Notes AS notes
+        FROM Booking b
+        JOIN Clients c ON b.Client_ID = c.Client_ID
+        WHERE b.Booking_Status = 'pending';
+    """
+    results = execute_read_query(conn, sql)
+    return jsonify(results)
+
+# ---- APPROVE A BOOKING ----
+@app.route('/api/booking-requests/approve/<booking_id>', methods=['POST'])
+def approve_booking(booking_id):
+    sql = f"""
+        UPDATE Booking
+        SET Booking_Status = 'approved'
+        WHERE Booking_ID = {booking_id}
+    """
+    myCreds = Creds()
+    conn = create_connection(myCreds.connectionstring, myCreds.username, myCreds.passwd, myCreds.dataBase)
+
+    try:
+        print(f"Approving booking: {booking_id}")
+        cursor = conn.cursor()
+        cursor.execute(sql)
+        conn.commit()
+
+        print("Query executed. Rows affected:", cursor.rowcount)
+
+        if cursor.rowcount == 0:
+            # Verify it even exists at all
+            check_sql = f"SELECT * FROM Booking WHERE Booking_ID = {booking_id}"
+            found = execute_read_query(conn, check_sql)
+            if found:
+                return jsonify({"success": False, "message": "Booking found but not updated"}), 500
+            return jsonify({"success": False, "message": f"No booking with ID {booking_id}"}), 404
+
+        return jsonify({
+            "success": True,
+            "message": f"Booking {booking_id} approved"
+        }), 200
+
+    except Exception as e:
+        print("Approve Error:", e)
+        return jsonify({"success": False, "error": str(e)}), 500
+
+# ---- DENY A BOOKING ----
+@app.route('/api/booking-requests/delete/<int:booking_id>', methods=['DELETE'])
+def delete_booking_and_client(booking_id):
+    try:
+        myCreds = Creds()
+        connection = create_connection(myCreds.connectionstring, myCreds.username, myCreds.passwd, myCreds.dataBase)
+        cursor = connection.cursor(dictionary=True)
+
+        # Get the Client_ID before deleting the booking
+        cursor.execute("SELECT Client_ID FROM Booking WHERE Booking_ID = %s", (booking_id,))
+        booking = cursor.fetchone()
+
+        if not booking:
+            return jsonify({'success': False, 'error': f'Booking ID {booking_id} not found'}), 404
+
+        client_id = booking['Client_ID']
+
+        # Delete the booking
+        cursor.execute("DELETE FROM Booking WHERE Booking_ID = %s", (booking_id,))
+        connection.commit()
+
+        # Delete the associated client
+        cursor.execute("DELETE FROM Clients WHERE Client_ID = %s", (client_id,))
+        connection.commit()
+
+        return jsonify({'success': True, 'message': f'Booking {booking_id} and Client {client_id} deleted'})
+
+    except Exception as e:
+        print(f"❌ Error deleting booking/client: {e}")
+        return jsonify({'success': False, 'error': str(e)}), 500
+
+@app.route('/api/booking', methods=['PUT'])
+def api_update_booking():
+    data = request.get_json()
+    sql = f"""
+        UPDATE Booking
+        SET Booking_Date = '{data['Booking_Date']}', Booking_Service = '{data['Booking_Service']}',
+        Booking_Status = '{data['Booking_Status']}'
+        WHERE Booking_ID = {data['id']}
+    """
+    myCreds = Creds()
+    conn = create_connection(myCreds.connectionstring, myCreds.username, myCreds.passwd, myCreds.dataBase)
     execute_query(conn, sql)
-    return "Add new booking successfully !"
+    return f"Booking with Booking ID {data['id']} updated successfully!"
 
+@app.route('/api/booking', methods=['DELETE'])
+def api_delete_booking_byID():
+    id_to_delete = request.get_json()['id']
+    sql = f"DELETE FROM Booking WHERE Booking_ID = {id_to_delete}"
+    myCreds = Creds()
+    conn = create_connection(myCreds.connectionstring, myCreds.username, myCreds.passwd, myCreds.dataBase)
+    execute_query(conn, sql)
+    return "Delete booking request successfully!"
 
-
-
-
-# Search appointments by first name, last name or both
 @app.route('/api/search_bookings', methods=['GET'])
 def search_bookings():
-
-    first_name = request.args.get('first_name', '')
-    last_name = request.args.get('last_name', '')
-    
-    myCreds = maincreds.Creds()
+    fname = request.args.get('first_name', '')
+    lname = request.args.get('last_name', '')
+    sql = """
+        SELECT * FROM Booking
+        JOIN Clients ON Booking.Client_ID = Clients.Client_ID
+        WHERE Clients.Client_FName LIKE %s OR Clients.Client_LName LIKE %s
+    """
+    myCreds = Creds()
     conn = create_connection(myCreds.connectionstring, myCreds.username, myCreds.passwd, myCreds.dataBase)
     cursor = conn.cursor(dictionary=True)
-    cursor.execute("SELECT * FROM booking JOIN clients ON booking.client_id = clients.client_id WHERE clients.client_fname LIKE %s OR clients.client_lname LIKE %s", (f'%{first_name}%', f'%{last_name}%'))
+    cursor.execute(sql, (f'%{fname}%', f'%{lname}%'))
+    return jsonify(cursor.fetchall()), 200
 
-    bookings = cursor.fetchall()
-    
-    return jsonify(bookings), 200
-
-
-# Search by start and end date
 @app.route('/api/search_by_date', methods=['GET'])
 def search_by_date():
-
-    start_date = request.args.get('start_date')
-    end_date = request.args.get('end_date')
-    
-    myCreds = maincreds.Creds()
+    start = request.args.get('start_date')
+    end = request.args.get('end_date')
+    sql = "SELECT * FROM Booking WHERE Booking_Date BETWEEN %s AND %s"
+    myCreds = Creds()
     conn = create_connection(myCreds.connectionstring, myCreds.username, myCreds.passwd, myCreds.dataBase)
     cursor = conn.cursor(dictionary=True)
-    cursor.execute("SELECT * FROM booking WHERE booking_date BETWEEN %s AND %s", (start_date, end_date))
-    bookings = cursor.fetchall()
-    
-    return jsonify(bookings), 200
+    cursor.execute(sql, (start, end))
+    return jsonify(cursor.fetchall()), 200
 
-
-
-# Guest view: Update availability of dates based on approval
 @app.route('/api/update_availability', methods=['POST'])
 def update_availability():
-
     approved_date = request.json['approved_date']
-    
-    myCreds = maincreds.Creds()
+    sql = "UPDATE Booking SET Booking_Status = 'unavailable' WHERE Booking_Date = %s AND Booking_Status = 'approved'"
+    myCreds = Creds()
     conn = create_connection(myCreds.connectionstring, myCreds.username, myCreds.passwd, myCreds.dataBase)
     cursor = conn.cursor()
-    cursor.execute("UPDATE booking SET status = 'unavailable' WHERE booking_date = %s AND booking_status = 'approved'", (approved_date,))
+    cursor.execute(sql, (approved_date,))
     conn.commit()
-    
     return jsonify({"message": "Availability updated"}), 200
 
-
-
-# Auto delete if denied appointment
 @app.route('/api/delete_denied_appointments', methods=['POST'])
 def delete_denied_appointments():
-
-    myCreds = maincreds.Creds()
+    sql = "DELETE FROM Booking WHERE Booking_Status = 'denied'"
+    myCreds = Creds()
     conn = create_connection(myCreds.connectionstring, myCreds.username, myCreds.passwd, myCreds.dataBase)
-    sql = "DELETE FROM booking WHERE status = 'denied'"
-
-
     execute_query(conn, sql)
     return jsonify({"message": "Denied appointments deleted"}), 200
 
-
-# Auto delete everything after 30 days
 @app.route('/api/delete_old_appointments', methods=['POST'])
 def delete_old_appointments():
-    
-    myCreds = maincreds.Creds()
+    sql = "DELETE FROM Booking WHERE Booking_Date < NOW() - INTERVAL 30 DAY"
+    myCreds = Creds()
     conn = create_connection(myCreds.connectionstring, myCreds.username, myCreds.passwd, myCreds.dataBase)
     cursor = conn.cursor()
-    cursor.execute("DELETE FROM booking WHERE booking_date < NOW() - INTERVAL 30 DAY")
+    cursor.execute(sql)
     conn.commit()
-    
     return jsonify({"message": "Old appointments deleted"}), 200
 
-
-
-
-
-# Update a booking as PUT method
-@app.route('/api/booking', methods=['PUT'])
-def api_update_booking():
-
-    request_data = request.get_json()
-    update_id = request_data['id']
-    update_datetime = request_data['Booking_Date']
-    update_service = request_data['Booking_Service']
-    update_status = request_data['Booking_Status']
-    
-
-    myCreds = maincreds.Creds()
-    conn = create_connection(myCreds.connectionstring, myCreds.username, myCreds.passwd, myCreds.dataBase)
-    sql = "update booking set Booking_Date = '%s', Booking_Service = '%s', Booking_Status = '%s' where id = %s" % (update_datetime, update_service, update_status, update_id)
-
-    execute_query(conn, sql)
-    return f"Booking with Booking ID {update_id} updated successfully !"
-
-
-# Delete a booking with DELETE method
-@app.route('/api/booking', methods=['DELETE'])
-def api_delete_booking_byID():
-    
-
-    request_data = request.get_json()
-    id_to_delete = request_data['id']
-    
-    myCreds = maincreds.Creds()
-    conn = create_connection(myCreds.connectionstring, myCreds.username, myCreds.passwd, myCreds.dataBase)
-    sql = "delete from booking where id = '%s'" % (id_to_delete)
-    execute_query(conn, sql)
-        
-    return "Delete booking request successfully !"
-
-
-
-
-
-
-# ---- Run application ----
+# ---- Run app ----
 if __name__ == '__main__':
     app.run(debug=True, port=5050)
-
