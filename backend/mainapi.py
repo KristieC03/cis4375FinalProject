@@ -71,7 +71,7 @@ def api_add_client():
 
     myCreds = maincreds.Creds()
     conn = create_connection(myCreds.connectionstring, myCreds.username, myCreds.passwd, myCreds.dataBase)
-    sql = "insert into clients (Client_Fname, Client_Lname, Client_Email, Client_Phone) values ('%s','%s','%s','%s','%s','%s')" % (new_fname, new_lname, new_email, new_phone)
+    sql = "insert into clients (Client_Fname, Client_Lname, Client_Email, Client_Phone) values ('%s','%s','%s','%s')" % (new_fname, new_lname, new_email, new_phone)
 
     execute_query(conn, sql)
     return "Add new client successfully !"
