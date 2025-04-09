@@ -1,7 +1,7 @@
 from flask import Flask, request, jsonify, session, make_response
 from flask_cors import CORS, cross_origin
 from datetime import datetime
-import hashlib
+import bcrypt
 
 from mainsql import create_connection, execute_read_query, execute_query
 from maincreds import Creds
@@ -12,10 +12,7 @@ CORS(app, resources={r"/*": {"origins": "*"}}, supports_credentials=True,
      allow_headers=["Content-Type", "Authorization"], methods=["GET", "OPTIONS"])
 app.secret_key = 'supersecretkey'
 
-# ---- LOGIN API (Basic Auth with SHA-256) ----
-masterPassword = "5e884898da28047151d0e56f8dc6292773603d0d6aabbdd62a11ef721d1542d8"  # 'password'
-masterUsername = 'username'
-
+# ---- LOGIN API (Basic Auth with bycrypt) ----
 @app.route('/authenticatedroute', methods=['GET', 'OPTIONS'])
 @cross_origin(origins="*", supports_credentials=True)
 def auth_test():
@@ -27,13 +24,32 @@ def auth_test():
         response.headers['Access-Control-Allow-Credentials'] = 'true'
         return response
 
-    if request.authorization:
-        encoded = request.authorization.password.encode()
-        hasedResult = hashlib.sha256(encoded)
-        if request.authorization.username == masterUsername and hasedResult.hexdigest() == masterPassword:
-            return '<h1> Authorized user access </h1>'
-    return make_response('Could not verify', 401, {'WWW-Authenticate': 'Basic realm="Login Required"'})
+    auth = request.authorization
+    if not auth:
+        return make_response('Could not verify', 401, {
+            'WWW-Authenticate': 'Basic realm="Login Required"'
+        })
 
+    username = auth.username
+    input_password = auth.password.encode()  # raw bytes
+
+    myCreds = Creds()
+    conn = create_connection(myCreds.connectionstring, myCreds.username, myCreds.passwd, myCreds.dataBase)
+    cursor = conn.cursor(dictionary=True)
+
+    # Get hashed password from DB
+    query = "SELECT Admin_Password FROM Admins WHERE Admin_Username = %s"
+    cursor.execute(query, (username,))
+    result = cursor.fetchone()
+
+    if result:
+        stored_hash = result['Admin_Password'].encode()  # bcrypt hash
+        if bcrypt.checkpw(input_password, stored_hash):
+            return '<h1>Authorized user access</h1>'
+
+    return make_response('Could not verify', 401, {
+        'WWW-Authenticate': 'Basic realm="Login Required"'
+    })
 # ---- CLIENT API ----
 @app.route('/api/clients', methods=['GET'])
 def api_clients_all():

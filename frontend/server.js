@@ -1,29 +1,47 @@
+require('dotenv').config();
+const session = require('express-session');
 const express = require('express');
 const axios = require('axios');
 const methodOverride = require('method-override');
 const bodyParser = require('body-parser');
 const path = require('path');
+
 const app = express();
 
-// Middleware
+/* ---------------------- Middleware ---------------------- */
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
 app.use(methodOverride('_method'));
+
+// Static files
+app.use(express.static(path.join(__dirname, 'public')));
 
 // Views
 app.set('view engine', 'ejs');
 app.set('views', path.join(__dirname, 'views'));
 
-// Static files (optional, if using CSS or images)
-app.use(express.static(path.join(__dirname, 'public')));
+// Session
+app.use(session({
+    secret: process.env.SESSION_SECRET,
+    resave: false,
+    saveUninitialized: false
+}));
 
-// Simulate login session
+// Set user info for all views
 app.use((req, res, next) => {
-    res.locals.user = null;
+    res.locals.user = req.session.user || null;
     next();
 });
 
-/* ---------------------- FRONTEND ROUTES ---------------------- */
+// Auth middleware
+function isAdmin(req, res, next) {
+    if (req.session.user && req.session.user.role === 'admin') {
+        return next();
+    } else {
+        return res.status(403).send('Access denied: Admins only.');
+    }
+}
+/* ---------------------- Routes ---------------------- */
 
 // Static Pages
 app.get('/', (req, res) => res.render('home'));
@@ -31,22 +49,48 @@ app.get('/about', (req, res) => res.render('about'));
 app.get('/contact', (req, res) => res.render('contact'));
 app.get('/login', (req, res) => res.render('login'));
 
-// Login Auth
-app.post('/login', (req, res) => {
+// Login
+app.post('/login', async (req, res) => {
     const { username, password } = req.body;
-    if (username === 'admin' && password === 'password') {
-        res.locals.user = { username };
-        res.render('home', { user: username, auth: true });
-    } else {
-        res.render('login', { error: 'Invalid username or password' });
+
+    try {
+        // Call Flask API with Basic Auth
+        const response = await axios.get('http://localhost:5050/authenticatedroute', {
+            auth: {
+                username,
+                password
+            },
+            withCredentials: true
+        });
+
+        // If authorized
+        if (response.status === 200) {
+            req.session.user = {
+                username,
+                role: 'admin' // you can make this dynamic later if needed
+            };
+            return res.redirect('/');
+        }
+
+    } catch (error) {
+        console.error('Login failed:', error.response?.status);
     }
+
+    res.render('login', { error: 'Invalid username or password' });
+});
+
+// Logout
+app.get('/logout', (req, res) => {
+    req.session.destroy(() => {
+        res.redirect('/');
+    });
 });
 
 // Bookings Guest View
 app.get('/bookings/guest', (req, res) => res.render('bookings/bookingsGuest'));
 
-// Admin Dashboard (Upcoming & Past)
-app.get('/bookings/dashboard', (req, res) => {
+// Admin Dashboard
+app.get('/bookings/dashboard', isAdmin, (req, res) => {
     const upcomingAppointments = [
         {
             firstName: 'John',
@@ -104,7 +148,7 @@ app.get('/bookings/dashboard', (req, res) => {
 });
 
 // Booking Requests
-app.get('/bookings/requests', async (req, res) => {
+app.get('/bookings/requests', isAdmin, async (req, res) => {
     try {
         const response = await axios.get('http://localhost:5050/api/booking-requests');
         const data = response.data;
@@ -142,57 +186,41 @@ app.post('/bookings/approve/:id', async (req, res) => {
     const bookingId = req.params.id;
 
     try {
-        console.log(`Forwarding approval for booking ID ${bookingId} to Flask API...`);
-        
         const response = await axios.post(`http://localhost:5050/api/booking-requests/approve/${bookingId}`);
-        
-        // Optional: Check response content for better debugging
         if (response.data.success) {
             res.json({ success: true });
         } else {
-            console.error('Flask API did not confirm success:', response.data);
             res.json({ success: false, message: 'Flask API responded without success flag.' });
         }
     } catch (error) {
-        console.error('Error approving booking (frontend -> backend):', error.message);
-        
-        // Try to include backend error if possible
         const errData = error.response?.data || {};
         res.json({ success: false, error: errData.error || error.message });
     }
 });
-
 
 // Deny/Delete Booking
 app.delete('/bookings/deny/:id', async (req, res) => {
     const bookingId = req.params.id;
 
     try {
-        console.log(`Forwarding deletion for booking ID ${bookingId} to Flask API...`);
-        
         const response = await axios.delete(`http://localhost:5050/api/booking-requests/delete/${bookingId}`);
-        
         if (response.data.success) {
             res.json({ success: true, message: response.data.message });
         } else {
-            console.error('Flask API did not confirm deletion:', response.data);
             res.json({ success: false, message: response.data.error || 'Unknown error during deletion.' });
         }
     } catch (error) {
-        console.error('❌ Error deleting booking/client (frontend -> backend):', error.message);
         const errData = error.response?.data || {};
         res.json({ success: false, error: errData.error || error.message });
     }
 });
 
-/* ---------------------- SPECIALTIES ---------------------- */
-
+// Specialties
 app.get('/specialties/foreclosure', (req, res) => res.render('specialties/foreclosure'));
 app.get('/specialties/probate', (req, res) => res.render('specialties/probate'));
 app.get('/specialties/realEstate', (req, res) => res.render('specialties/realEstate'));
 
-/* ---------------------- SERVER START ---------------------- */
-
+/* ---------------------- Start Server ---------------------- */
 const PORT = process.env.PORT || 8080;
 app.listen(PORT, () => {
     console.log(`Server running at http://localhost:${PORT}/`);

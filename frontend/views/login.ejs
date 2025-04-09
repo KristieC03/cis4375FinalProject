@@ -18,7 +18,6 @@
       background-color: #5b5f7c;
       display: flex;
       flex-direction: column;
-      
     }
 
     .page-wrapper {
@@ -90,52 +89,23 @@
   <!-- Centered Login Box -->
   <div class="page-wrapper">
     <div class="login-container">
-      <h2 style = "color:#191b41;">Admin Login</h2>
-      <form id="loginForm">
-        <label style = "color:#191b41;" for="username">Username</label>
-        <input style = "background-color: #ffffff;" type="text" id="username" required />
+      <h2 style="color:#191b41;">Admin Login</h2>
+      <form action="/login" method="POST">
+        <label style="color:#191b41;" for="username">Username</label>
+        <input style="background-color: #ffffff;" type="text" name="username" required />
 
-        <label style = "color:#191b41;" for="password">Password</label>
-        <input style = "background-color: #ffffff;" type="password" id="password" required />
+        <label style="color:#191b41;" for="password">Password</label>
+        <input style="background-color: #ffffff;" type="password" name="password" required />
 
         <button type="submit">Login</button>
-        <div class="error" id="error-msg"></div>
+
+        <% if (typeof error !== 'undefined') { %>
+          <div class="error"><%= error %></div>
+        <% } %>
       </form>
     </div>
   </div>
 
+  <%- include('../partials/footer') %>
 </body>
-<script>
-  const form = document.getElementById('loginForm');
-  const errorMsg = document.getElementById('error-msg');
-
-  form.addEventListener('submit', async (e) => {
-    e.preventDefault();
-    errorMsg.textContent = '';
-
-    const username = document.getElementById('username').value;
-    const password = document.getElementById('password').value;
-    const credentials = btoa(`${username}:${password}`);
-
-    try {
-      const response = await fetch('http://localhost:5050/authenticatedroute', {
-        method: 'GET',
-        headers: {
-          'Authorization': `Basic ${credentials}`
-        }
-      });
-
-      if (response.ok) {
-        window.location.href = '/bookings/dashboard'; // or show success
-      } else {
-        errorMsg.textContent = 'Invalid username or password.';
-      }
-    } catch (error) {
-      console.error('Login error:', error);
-      errorMsg.textContent = 'Error connecting to the server.';
-    }
-  });
-</script>
-
 </html>
-<%- include('../partials/footer') %>
