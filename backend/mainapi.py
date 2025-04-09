@@ -1,5 +1,6 @@
 from flask import Flask, request, jsonify, session, make_response
 from flask_cors import CORS, cross_origin
+from flask_apscheduler import APScheduler
 from datetime import datetime
 import bcrypt
 
@@ -51,6 +52,7 @@ def auth_test():
         'WWW-Authenticate': 'Basic realm="Login Required"'
     })
 # ---- CLIENT API ----
+''' Don't rlly need, commented out for now just in case, might delete later
 @app.route('/api/clients', methods=['GET'])
 def api_clients_all():
     myCreds = Creds()
@@ -91,6 +93,7 @@ def api_delete_client_byID():
     conn = create_connection(myCreds.connectionstring, myCreds.username, myCreds.passwd, myCreds.dataBase)
     execute_query(conn, sql)
     return "Delete clients request successfully!"
+'''
 
 # ---- BOOKING API ----
 @app.route('/api/booking', methods=['GET'])
@@ -230,61 +233,26 @@ def api_delete_booking_byID():
     execute_query(conn, sql)
     return "Delete booking request successfully!"
 
-@app.route('/api/search_bookings', methods=['GET'])
-def search_bookings():
-    fname = request.args.get('first_name', '')
-    lname = request.args.get('last_name', '')
-    sql = """
-        SELECT * FROM Booking
-        JOIN Clients ON Booking.Client_ID = Clients.Client_ID
-        WHERE Clients.Client_FName LIKE %s OR Clients.Client_LName LIKE %s
-    """
-    myCreds = Creds()
-    conn = create_connection(myCreds.connectionstring, myCreds.username, myCreds.passwd, myCreds.dataBase)
-    cursor = conn.cursor(dictionary=True)
-    cursor.execute(sql, (f'%{fname}%', f'%{lname}%'))
-    return jsonify(cursor.fetchall()), 200
+class Config:
+    SCHEDULER_API_ENABLED = True
 
-@app.route('/api/search_by_date', methods=['GET'])
-def search_by_date():
-    start = request.args.get('start_date')
-    end = request.args.get('end_date')
-    sql = "SELECT * FROM Booking WHERE Booking_Date BETWEEN %s AND %s"
-    myCreds = Creds()
-    conn = create_connection(myCreds.connectionstring, myCreds.username, myCreds.passwd, myCreds.dataBase)
-    cursor = conn.cursor(dictionary=True)
-    cursor.execute(sql, (start, end))
-    return jsonify(cursor.fetchall()), 200
+app.config.from_object(Config())
+scheduler = APScheduler()
+scheduler.init_app(app)
+scheduler.start()
 
-@app.route('/api/update_availability', methods=['POST'])
-def update_availability():
-    approved_date = request.json['approved_date']
-    sql = "UPDATE Booking SET Booking_Status = 'unavailable' WHERE Booking_Date = %s AND Booking_Status = 'approved'"
-    myCreds = Creds()
-    conn = create_connection(myCreds.connectionstring, myCreds.username, myCreds.passwd, myCreds.dataBase)
-    cursor = conn.cursor()
-    cursor.execute(sql, (approved_date,))
-    conn.commit()
-    return jsonify({"message": "Availability updated"}), 200
-
-@app.route('/api/delete_denied_appointments', methods=['POST'])
-def delete_denied_appointments():
-    sql = "DELETE FROM Booking WHERE Booking_Status = 'denied'"
-    myCreds = Creds()
-    conn = create_connection(myCreds.connectionstring, myCreds.username, myCreds.passwd, myCreds.dataBase)
-    execute_query(conn, sql)
-    return jsonify({"message": "Denied appointments deleted"}), 200
-
-@app.route('/api/delete_old_appointments', methods=['POST'])
-def delete_old_appointments():
+def delete_old_appointments_job():
     sql = "DELETE FROM Booking WHERE Booking_Date < NOW() - INTERVAL 30 DAY"
     myCreds = Creds()
     conn = create_connection(myCreds.connectionstring, myCreds.username, myCreds.passwd, myCreds.dataBase)
     cursor = conn.cursor()
     cursor.execute(sql)
     conn.commit()
-    return jsonify({"message": "Old appointments deleted"}), 200
+    print(f"{datetime.now()}: Old appointments deleted")
 
-# ---- Run app ----
+scheduler.add_job(id='Delete Old Appointments', func=delete_old_appointments_job, trigger='interval', days=1)
+
+
 if __name__ == '__main__':
+    app.run(debug=True)
     app.run(debug=True, port=5050)
