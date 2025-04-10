@@ -73,8 +73,17 @@ app.post('/login', async (req, res) => {
         }
 
     } catch (error) {
-        console.error('Login failed:', error.response?.status);
-    }
+        if (error.response) {
+            console.error('Login failed:');
+            console.error('Status:', error.response.status);
+            console.error('Data:', error.response.data);
+        } else {
+            console.error('Login failed: No response received');
+            console.error(error.message);
+        }
+    
+        res.render('login', { error: 'Invalid username or password' });
+    }    
 
     res.render('login', { error: 'Invalid username or password' });
 });

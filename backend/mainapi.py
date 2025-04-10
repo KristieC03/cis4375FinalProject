@@ -242,17 +242,50 @@ scheduler.init_app(app)
 scheduler.start()
 
 def delete_old_appointments_job():
-    sql = "DELETE FROM Booking WHERE Booking_Date < NOW() - INTERVAL 30 DAY"
     myCreds = Creds()
     conn = create_connection(myCreds.connectionstring, myCreds.username, myCreds.passwd, myCreds.dataBase)
-    cursor = conn.cursor()
-    cursor.execute(sql)
+    cursor = conn.cursor(dictionary=True)
+
+    # Step 1: Select all bookings older than 30 days
+    select_sql = """
+        SELECT b.Booking_ID, b.Booking_Date, b.Booking_Service,
+               c.Client_ID, c.Client_FName, c.Client_LName
+        FROM Booking b
+        JOIN Clients c ON b.Client_ID = c.Client_ID
+        WHERE b.Booking_Date < NOW() - INTERVAL 30 DAY
+    """
+    cursor.execute(select_sql)
+    old_bookings = cursor.fetchall()
+
+    if not old_bookings:
+        print(f"{datetime.now()}: No old appointments to delete.")
+        return
+
+    # Step 2: Log each one
+    for booking in old_bookings:
+        print(f"{datetime.now()}: Deleting booking ID {booking['Booking_ID']} for {booking['Client_FName']} {booking['Client_LName']} ({booking['Booking_Service']} on {booking['Booking_Date']})")
+
+    # Step 3: Delete from Booking table
+    booking_ids = [str(b['Booking_ID']) for b in old_bookings]
+    delete_bookings_sql = f"DELETE FROM Booking WHERE Booking_ID IN ({','.join(booking_ids)})"
+    cursor.execute(delete_bookings_sql)
     conn.commit()
-    print(f"{datetime.now()}: Old appointments deleted")
 
-scheduler.add_job(id='Delete Old Appointments', func=delete_old_appointments_job, trigger='interval', days=1)
+    # Step 4: Delete the associated clients
+    client_ids = [str(b['Client_ID']) for b in old_bookings]
+    delete_clients_sql = f"DELETE FROM Clients WHERE Client_ID IN ({','.join(client_ids)})"
+    cursor.execute(delete_clients_sql)
+    conn.commit()
 
+    print(f"{datetime.now()}: Deleted {len(old_bookings)} old appointment(s) and associated client(s).")
+
+scheduler.add_job(
+    id='Delete Old Appointments',
+    func=delete_old_appointments_job,
+    trigger='interval',
+    days=1
+)
 
 if __name__ == '__main__':
-    app.run(debug=True)
-    app.run(debug=True, port=5050)
+    app.run(debug=True, port=5050, use_reloader=False)
+
