@@ -66,6 +66,33 @@
       color: white;
       text-align: center;
     }
+    .form-group {
+      margin-bottom: 10px;
+      text-align: left;
+    }
+
+    .form-group label {
+      display: block;
+      font-weight: bold;
+      margin-bottom: 5px;
+    }
+
+    .form-group input, .form-group textarea {
+      width: 90%;
+      padding: 10px;
+      border-radius: 5px;
+      border: none;
+      font-size: 1rem;
+    }
+
+    .form-group select {
+      width: 90%;
+      padding: 12px;  
+      border-radius: 5px;
+      border: none;
+      font-size: 1rem;
+      margin-top: 5px; 
+    }
 
     .time-slot {
       background: white;
@@ -152,10 +179,48 @@
         <p id="no-times-msg" class="no-times-message" style="display: none;">No times available for this date.</p>
 
         <form id="booking-form">
+          <div class="form-group">
+            <label for="first-name">First Name</label>
+            <input type="text" id="first-name" name="first-name" required>
+          </div>
+          
+          <div class="form-group">
+            <label for="last-name">Last Name</label>
+            <input type="text" id="last-name" name="last-name" required>
+          </div>
+          
+          <div class="form-group">
+            <label for="email">Email</label>
+            <input type="email" id="email" name="email" required>
+          </div>
+          
+          <div class="form-group">
+            <label for="phone">Phone</label>
+            <input type="tel" id="phone" name="phone" required>
+          </div>
+
+          <div class="form-group">
+            <label for="service">Service</label>
+            <select id="service" name="service" required>
+              <option value="" disabled selected>Please select a service</option>
+              <option value="Consultation">Consultation</option>
+              <option value="Real Estate">Real Estate</option>
+              <option value="Foreclosure Defense">Foreclosure Defense</option>
+              <option value="Probate law">Probate law</option>
+            </select>
+          </div>
+          
+          
+          <div class="form-group">
+            <label for="additional-details">Additional Details</label>
+            <textarea id="additional-details" name="additional-details" rows="3" maxlength="1000"></textarea>
+          </div>
+
           <input type="hidden" id="selected-date" name="date">
           <input type="hidden" id="selected-time" name="time">
           <input type="hidden" id="booking-id" name="booking-id">
           <button type="submit" class="submit-btn" id="submit-btn" disabled>Confirm Booking</button>
+          
         </form>
       </div>
     </div>
@@ -259,6 +324,8 @@
           selectedTimeInput.value = this.dataset.time;
           timeButtons.forEach(btn => btn.classList.remove("selected"));
           this.classList.add("selected");
+          selectedTimeInput.value = button.dataset.time; // added
+          submitBtn.disabled = !selectedTimeInput.value || !selectedDateInput.value; // added
         });
       });
 
@@ -268,7 +335,7 @@
           alert("Please select both a date and time before confirming your booking.");
         }
 
-      // updated new code below
+        // updated new code below
         const bookingData = {
           firstName: document.getElementById("first-name").value,
           lastName: document.getElementById("last-name").value,
@@ -294,8 +361,10 @@
           }
         })
         .catch(error => console.error("Error:", error));
+
       });
     });
   </script>
 </body>
 </html>
+
