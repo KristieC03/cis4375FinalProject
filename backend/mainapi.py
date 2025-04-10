@@ -115,7 +115,12 @@ def api_bookings_all():
     JOIN Clients c ON b.Client_ID = c.Client_ID;
     """
     bookings = execute_read_query(conn, sql)
-    return jsonify(bookings)
+    # Filter out the approved bookings' dates
+    approved_dates = [booking['date'] for booking in bookings if booking['status'] == 'approved']
+    return jsonify({
+        "bookings": bookings,
+        "approved_dates": approved_dates  # Sending approved booking dates to the frontend
+    })
 
 @app.route('/api/booking-requests', methods=['GET'])
 def get_pending_bookings():
