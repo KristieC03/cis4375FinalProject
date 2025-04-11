@@ -181,12 +181,12 @@
         <form id="booking-form">
           <div class="form-group">
             <label for="first-name">First Name</label>
-            <input type="text" id="first-name" name="first-name" required>
+            <input type="text" id="first-name" name="firstName" required>
           </div>
           
           <div class="form-group">
             <label for="last-name">Last Name</label>
-            <input type="text" id="last-name" name="last-name" required>
+            <input type="text" id="last-name" name="lastName" required>
           </div>
           
           <div class="form-group">
@@ -201,7 +201,7 @@
 
           <div class="form-group">
             <label for="service">Service</label>
-            <select id="service" name="service" required>
+            <select id="service" name="serviceType" required>
               <option value="" disabled selected>Please select a service</option>
               <option value="Consultation">Consultation</option>
               <option value="Real Estate">Real Estate</option>
@@ -213,22 +213,25 @@
           
           <div class="form-group">
             <label for="additional-details">Additional Details</label>
-            <textarea id="additional-details" name="additional-details" rows="3" maxlength="1000"></textarea>
+            <textarea id="additional-details" name="notes" rows="3" maxlength="1000"></textarea>
           </div>
+          <input type="hidden" id="booking-id" name="Booking_ID">
+          <input type="hidden" id="client-id" name="Client_ID">
+          <input type="hidden" id="selected-date" name="Booking_Date">
+          <input type="hidden" id="selected-time" name="Booking_Time">
 
-          <input type="hidden" id="selected-date" name="date">
-          <input type="hidden" id="selected-time" name="time">
-          <input type="hidden" id="booking-id" name="booking-id">
-          <button type="submit" class="submit-btn" id="submit-btn" disabled>Confirm Booking</button>
-          
+          <button type="submit" class="submit-btn" id="submit-btn">Confirm Booking</button>
+                  
         </form>
       </div>
     </div>
   </div>
 
   <%- include('../../partials/footer') %>
-
+  
   <script src="https://cdn.jsdelivr.net/npm/fullcalendar@5.11.3/main.min.js"></script>
+  
+
   <script>
     document.addEventListener("DOMContentLoaded", function () {
       const selectedDateInput = document.getElementById("selected-date");
@@ -253,7 +256,7 @@
         },
         titleFormat: { month: 'long', year: 'numeric' },
 
-        // ✅ Update title correctly on month nav
+        // Update title correctly on month nav
         datesSet: function(info) {
           const currentDate = calendar.getDate(); // use center date
           const month = currentDate.toLocaleString('default', { month: 'long' });
@@ -336,35 +339,40 @@
         }
 
         // updated new code below
-        const bookingData = {
-          firstName: document.getElementById("first-name").value,
-          lastName: document.getElementById("last-name").value,
-          email: document.getElementById("email").value,
-          phone: document.getElementById("phone").value,
-          additionalDetails: document.getElementById("additional-details").value,
-          date: selectedDateInput.value,
-          time: selectedTimeInput.value
-        };
-        fetch(`/api/booking-requests/approve/${bookingIdInput.value}`, {
-          method: 'POST',
-          body: JSON.stringify(bookingData),
-          headers: {
-            'Content-Type': 'application/json'
-          }
-        })
-        .then(response => response.json())
-        .then(data => {
-          if (data.success) {
-            alert(data.message);
-          } else {
-            alert(data.message);
-          }
-        })
-        .catch(error => console.error("Error:", error));
 
+        const bookingData = {
+        Booking_ID: document.getElementById("booking-id").value,
+        Client_ID: document.getElementById("client-id").value,
+        firstName: document.getElementById("first-name").value,
+        lastName: document.getElementById("last-name").value,
+        email: document.getElementById("email").value,
+        phone: document.getElementById("phone").value,
+        serviceType: document.getElementById("service").value,
+        notes: document.getElementById("additional-details").value,
+        Booking_Date: selectedDateInput.value,
+        Booking_Time: selectedTimeInput.value
+    };
+   // Send the booking data to the backend API
+    fetch('/api/booking-requests/approve', {
+        method: 'POST',
+        body: JSON.stringify(bookingData),
+        headers: {
+          'Content-Type': 'application/json'
+        }
+      })
+      .then(response => response.json())
+      .then(data => {
+        if (data.success) {
+          alert(data.message);  // Show success message
+        } else {
+          alert(data.message);  // Show failure message
+        }
+      })
+      .catch(error => console.error("Error:", error));
+        
+        });
       });
-    });
-  </script>
-</body>
-</html>
+    </script>
+  </body>
+  </html>
 
