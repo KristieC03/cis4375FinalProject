@@ -138,13 +138,13 @@
       <table class="appointment-table" id="upcomingTable" data-sort-dir="asc">
         <thead>
           <tr>
-            <th onclick="sortTable('upcomingTable', 0)">Name<span class="arrow">▲</span></th>
-            <th onclick="sortTable('upcomingTable', 1)">Email<span class="arrow">▲</span></th>
-            <th onclick="sortTable('upcomingTable', 2)">Phone<span class="arrow">▲</span></th>
+            <th>Name</th>
+            <th>Email</th>
+            <th style="white-space: nowrap; width: 140px;">Phone</th>
             <th onclick="sortTable('upcomingTable', 3)">Date<span class="arrow">▲</span></th>
-            <th onclick="sortTable('upcomingTable', 4)">Time<span class="arrow">▲</span></th>
-            <th onclick="sortTable('upcomingTable', 5)">Service<span class="arrow">▲</span></th>
-            <th onclick="sortTable('upcomingTable', 6)">Notes<span class="arrow">▲</span></th>
+            <th>Time</th>
+            <th>Service</th>
+            <th>Notes</th>
           </tr>
         </thead>
         <tbody>
@@ -153,7 +153,12 @@
               <td><%= app.firstName %> <%= app.lastName %></td>
               <td><%= app.email %></td>
               <td><%= app.phone %></td>
-              <td><%= app.date %></td>
+              <td><%= new Date(app.date).toLocaleDateString('en-US', {
+  weekday: 'long',
+  year: 'numeric',
+  month: 'long',
+  day: 'numeric'
+}) %></td>
               <td><%= app.time %> <%= app.period %></td>
               <td><%= app.serviceType %></td>
               <td><%= app.notes || '—' %></td>
@@ -171,13 +176,13 @@
       <table class="appointment-table" id="pastTable" data-sort-dir="asc">
         <thead>
           <tr>
-            <th onclick="sortTable('pastTable', 0)">Name<span class="arrow">▲</span></th>
-            <th onclick="sortTable('pastTable', 1)">Email<span class="arrow">▲</span></th>
-            <th onclick="sortTable('pastTable', 2)">Phone<span class="arrow">▲</span></th>
+            <th>Name</th>
+            <th>Email</th>
+            <th style="white-space: nowrap; width: 140px;">Phone</th>
             <th onclick="sortTable('pastTable', 3)">Date<span class="arrow">▲</span></th>
-            <th onclick="sortTable('pastTable', 4)">Time<span class="arrow">▲</span></th>
-            <th onclick="sortTable('pastTable', 5)">Service<span class="arrow">▲</span></th>
-            <th onclick="sortTable('pastTable', 6)">Notes<span class="arrow">▲</span></th>
+            <th>Time</th>
+            <th>Service</th>
+            <th>Notes</th>
           </tr>
         </thead>
         <tbody>
@@ -186,7 +191,12 @@
               <td><%= app.firstName %> <%= app.lastName %></td>
               <td><%= app.email %></td>
               <td><%= app.phone %></td>
-              <td><%= app.date %></td>
+              <td><%= new Date(app.date).toLocaleDateString('en-US', {
+  weekday: 'long',
+  year: 'numeric',
+  month: 'long',
+  day: 'numeric'
+}) %></td>
               <td><%= app.time %> <%= app.period %></td>
               <td><%= app.serviceType %></td>
               <td><%= app.notes || '—' %></td>
@@ -209,7 +219,7 @@
 
   <script src="https://cdn.jsdelivr.net/npm/fullcalendar@5.11.3/main.min.js"></script>
   <script>
-    const allAppointments = <%- JSON.stringify([
+    const allAppointments = <%- JSON.stringify([ 
       ...upcomingAppointments.map(app => ({
         name: `${app.firstName} ${app.lastName}`,
         date: app.date,
@@ -309,52 +319,30 @@
         rows[i].style.display = match ? '' : 'none';
       }
     }
-    function closeModal() {
-    document.getElementById("appointmentModal").style.display = "none";
-  }
 
-  function searchAppointments(type) {
-    const inputId = type === 'upcoming' ? 'upcomingSearch' : 'pastSearch';
-    const tableId = type === 'upcoming' ? 'upcomingTable' : 'pastTable';
-    const searchInput = document.getElementById(inputId).value.toLowerCase();
-    const table = document.getElementById(tableId);
-    const rows = table.getElementsByTagName('tr');
-    for (let i = 1; i < rows.length; i++) {
-      const cells = rows[i].getElementsByTagName('td');
-      let match = false;
-      for (let j = 0; j < cells.length; j++) {
-        if (cells[j].textContent.toLowerCase().includes(searchInput)) {
-          match = true;
-          break;
-        }
-      }
-      rows[i].style.display = match ? '' : 'none';
+    // ✅ ADD THIS SORT FUNCTION BACK:
+    function sortTable(tableId, colIndex) {
+      const table = document.getElementById(tableId);
+      const rows = Array.from(table.rows).slice(1);
+      let asc = table.getAttribute("data-sort-dir") !== "desc";
+
+      rows.sort((a, b) => {
+        const aText = a.cells[colIndex].textContent.trim().toLowerCase();
+        const bText = b.cells[colIndex].textContent.trim().toLowerCase();
+        return asc ? aText.localeCompare(bText) : bText.localeCompare(aText);
+      });
+
+      const tbody = table.querySelector("tbody");
+      rows.forEach(row => tbody.appendChild(row));
+      table.setAttribute("data-sort-dir", asc ? "desc" : "asc");
+
+      // Update sort arrow indicators
+      const headers = table.querySelectorAll("th");
+      headers.forEach((th, i) => {
+        const arrow = th.querySelector(".arrow");
+        if (arrow) arrow.textContent = i === colIndex ? (asc ? "▼" : "▲") : "▲";
+      });
     }
-  }
-
-  // ✅ ADD THIS SORT FUNCTION BACK:
-  function sortTable(tableId, colIndex) {
-    const table = document.getElementById(tableId);
-    const rows = Array.from(table.rows).slice(1);
-    let asc = table.getAttribute("data-sort-dir") !== "desc";
-
-    rows.sort((a, b) => {
-      const aText = a.cells[colIndex].textContent.trim().toLowerCase();
-      const bText = b.cells[colIndex].textContent.trim().toLowerCase();
-      return asc ? aText.localeCompare(bText) : bText.localeCompare(aText);
-    });
-
-    const tbody = table.querySelector("tbody");
-    rows.forEach(row => tbody.appendChild(row));
-    table.setAttribute("data-sort-dir", asc ? "desc" : "asc");
-
-    // Update sort arrow indicators
-    const headers = table.querySelectorAll("th");
-    headers.forEach((th, i) => {
-      const arrow = th.querySelector(".arrow");
-      if (arrow) arrow.textContent = i === colIndex ? (asc ? "▼" : "▲") : "▲";
-    });
-  }
   </script>
 </body>
 </html>
