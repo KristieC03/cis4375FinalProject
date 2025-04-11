@@ -103,17 +103,18 @@ def api_bookings_all():
 
     sql = """
     SELECT 
-        c.Client_FName AS firstName,
-        c.Client_LName AS lastName,
-        c.Client_Email AS email,
-        c.Client_Phone AS phone,
-        b.Booking_Date AS date,
-        b.Booking_Service AS serviceType,
-        b.Booking_Status AS status,
-        b.Booking_Notes AS notes
-    FROM Booking b
-    JOIN Clients c ON b.Client_ID = c.Client_ID;
-    """
+    c.Client_FName AS firstName,
+    c.Client_LName AS lastName,
+    c.Client_Email AS email,
+    c.Client_Phone AS phone,
+    DATE_FORMAT(b.Booking_Date, '%Y-%m-%d') AS date,
+    TIME_FORMAT(b.Booking_Date, '%h:%i %p') AS time,
+    b.Booking_Service AS serviceType,
+    b.Booking_Status AS status,
+    b.Booking_Notes AS notes
+FROM Booking b
+JOIN Clients c ON b.Client_ID = c.Client_ID;
+"""
     bookings = execute_read_query(conn, sql)
     # Filter out the approved bookings' dates
     approved_dates = [booking['date'] for booking in bookings if booking['status'] == 'approved']
