@@ -99,61 +99,34 @@ app.get('/logout', (req, res) => {
 app.get('/bookings/guest', (req, res) => res.render('bookings/bookingsGuest'));
 
 // Admin Dashboard
-app.get('/bookings/dashboard', isAdmin, (req, res) => {
-    const upcomingAppointments = [
-        {
-            firstName: 'John',
-            lastName: 'Doe',
-            email: 'john.doe@example.com',
-            phone: '123-456-7890',
-            date: '2025-04-06',
-            time: '10:00',
-            period: 'AM',
-            serviceType: 'Consultation',
-            notes: 'First-time visit'
-        },
-        {
-            firstName: 'Jane',
-            lastName: 'Smith',
-            email: 'jane.smith@example.com',
-            phone: '321-654-0987',
-            date: '2025-04-08',
-            time: '2:30',
-            period: 'PM',
-            serviceType: 'Probate Law',
-            notes: ''
-        }
-    ];
+// Admin Dashboard (Upcoming & Past)
+app.get('/bookings/dashboard', async (req, res) => {
+    try {
+        const response = await axios.get('http://localhost:5050/api/booking');
+        const bookingsData = response.data;
 
-    const pastAppointments = [
-        {
-            firstName: 'Alice',
-            lastName: 'Brown',
-            email: 'alice.brown@example.com',
-            phone: '456-789-0123',
-            date: '2025-03-30',
-            time: '1:00',
-            period: 'PM',
-            serviceType: 'Real Estate',
-            notes: 'Had previous case'
-        },
-        {
-            firstName: 'Tom',
-            lastName: 'Johnson',
-            email: 'tom.johnson@example.com',
-            phone: '987-654-3210',
-            date: '2025-04-01',
-            time: '11:00',
-            period: 'AM',
-            serviceType: 'Foreclosure Defense',
-            notes: ''
-        }
-    ];
+        // Filter upcoming and past appointments
+        const upcomingAppointments = bookingsData.filter(booking => {
+            const bookingDate = new Date(booking.date);
+            const currentDate = new Date();
+            return bookingDate >= currentDate;
+        });
 
-    res.render('bookings/bookingsDash', {
-        upcomingAppointments,
-        pastAppointments
-    });
+        const pastAppointments = bookingsData.filter(booking => {
+            const bookingDate = new Date(booking.date);
+            const currentDate = new Date();
+            return bookingDate < currentDate;
+        });
+
+        res.render('bookings/bookingsDash', {
+            upcomingAppointments,
+            pastAppointments
+        });
+
+    } catch (error) {
+        console.error('Error fetching bookings data:', error.message);
+        res.render('bookings/bookingsDash', { upcomingAppointments: [], pastAppointments: [] });
+    }
 });
 
 // Booking Requests
