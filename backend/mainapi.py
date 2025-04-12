@@ -96,6 +96,59 @@ def api_delete_client_byID():
 '''
 
 # ---- BOOKING API ----
+
+@app.route('/api/book-appointment', methods=['POST'])
+def create_booking():
+    data = request.get_json()
+
+    first_name = data.get('firstName')
+    last_name = data.get('lastName')
+    email = data.get('email')
+    phone = data.get('phone')
+    service = data.get('serviceType')
+    notes = data.get('notes')
+    booking_date = data.get('Booking_Date')
+    booking_time = data.get('Booking_Time')
+
+    # Combine date and time to a full datetime string
+    booking_datetime = f"{booking_date} {booking_time}"
+
+    try:
+        myCreds = Creds()
+        conn = create_connection(myCreds.connectionstring, myCreds.username, myCreds.passwd, myCreds.dataBase)
+        cursor = conn.cursor()
+
+        # Insert into Clients table
+        insert_client_sql = """
+            INSERT INTO Clients (Client_FName, Client_LName, Client_Email, Client_Phone)
+            VALUES (%s, %s, %s, %s)
+        """
+        cursor.execute(insert_client_sql, (first_name, last_name, email, phone))
+        client_id = cursor.lastrowid  # Get the auto-generated Client_ID
+
+        # Insert into Booking table
+        insert_booking_sql = """
+            INSERT INTO Booking (Client_ID, Booking_Date, Booking_Service, Booking_Status, Booking_Notes)
+            VALUES (%s, %s, %s, %s, %s)
+        """
+        cursor.execute(insert_booking_sql, (client_id, booking_datetime, service, 'pending', notes))
+        conn.commit()
+
+        return jsonify({
+            "success": True,
+            "message": "Booking request submitted successfully!"
+        }), 201
+
+    except Exception as e:
+        print("Error in booking:", e)
+        return jsonify({
+            "success": False,
+            "message": "Failed to create booking.",
+            "error": str(e)
+        }), 500
+
+
+
 @app.route('/api/booking', methods=['GET'])
 def api_bookings_all():
     myCreds = Creds()
