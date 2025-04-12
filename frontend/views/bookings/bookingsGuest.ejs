@@ -352,23 +352,32 @@
         Booking_Date: selectedDateInput.value,
         Booking_Time: selectedTimeInput.value
     };
-   // Send the booking data to the backend API
-    fetch('/api/booking-requests/approve', {
-        method: 'POST',
-        body: JSON.stringify(bookingData),
-        headers: {
-          'Content-Type': 'application/json'
-        }
-      })
-      .then(response => response.json())
-      .then(data => {
-        if (data.success) {
-          alert(data.message);  // Show success message
-        } else {
-          alert(data.message);  // Show failure message
-        }
-      })
-      .catch(error => console.error("Error:", error));
+
+// Send the booking data to the backend API
+   fetch('/api/book-appointment', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify(bookingData)
+        })
+        .then(response => response.json())
+        .then(data => {
+          if (data.success) {
+            alert("Booking request submitted successfully!");
+            document.getElementById("booking-form").reset();
+            selectedDateInput.value = "";
+            selectedTimeInput.value = "";
+            selectedDateDisplay.textContent = "";
+            timeButtons.forEach(btn => btn.classList.remove("selected"));
+          } else {
+            alert("Error: " + data.message);
+          }
+        })
+        .catch(error => {
+          console.error("Fetch error:", error);
+          alert("An error occurred while submitting your booking.");
+        });
         
         });
       });
