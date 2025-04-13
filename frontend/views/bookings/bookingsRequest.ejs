@@ -222,7 +222,8 @@ footer {
             <td><%= req.date %></td>
             <td><%= req.time %> <%= req.period %></td>
             <td><%= req.email %></td>
-            <td><%= req.phone %></td>
+            <td class="phone-cell"><%= req.phone %></td>
+
             <td><%= req.serviceType %></td>
             <td class="notes-cell">
               <%= (req.notes && req.notes.length > 100) ? req.notes.slice(0, 100) + '...' : (req.notes || '—') %>
@@ -249,7 +250,7 @@ footer {
   
   <%- include('../../partials/footer') %>
 
-  <script>
+<script>
     // Sorting function as per W3Schools example
     function sortTable(n) {
       var table, rows, switching, i, x, y, shouldSwitch, dir, switchcount = 0;
@@ -264,7 +265,7 @@ footer {
         for (i = 1; i < (rows.length - 1); i++) {
           shouldSwitch = false;
           x = rows[i].getElementsByTagName("TD")[n];
-          y = rows[i + 1].getElementsByTagName("TD")[n];
+          y = rows[i].getElementsByTagName("TD")[n];
 
           if (dir == "asc") {
             if (x.innerHTML.toLowerCase() > y.innerHTML.toLowerCase()) {
@@ -305,33 +306,51 @@ footer {
 
     // Search function for table rows
     window.searchRequests = function () {
-  const input = document.getElementById("requestSearch").value.toLowerCase();
-  const table = document.getElementById("requestsTable");
-  const rows = table.getElementsByTagName("tr");
+      const input = document.getElementById("requestSearch").value.toLowerCase();
+      const table = document.getElementById("requestsTable");
+      const rows = table.getElementsByTagName("tr");
 
-  for (let i = 1; i < rows.length; i++) {
-    const cells = rows[i].getElementsByTagName("td");
-    let match = false;
-    for (let j = 0; j < cells.length - 1; j++) {  // Exclude the last column (Approve/Deny)
-      if (cells[j].textContent.toLowerCase().includes(input)) {
-        match = true;
-        break;
+      for (let i = 1; i < rows.length; i++) {
+        const cells = rows[i].getElementsByTagName("td");
+        let match = false;
+        for (let j = 0; j < cells.length - 1; j++) {  // Exclude the last column (Approve/Deny)
+          if (cells[j].textContent.toLowerCase().includes(input)) {
+            match = true;
+            break;
+          }
+        }
+        
+        // Hide rows that do not match the search
+        rows[i].style.display = match ? "" : "none";
+
+        // Ensure the "Approve" and "Deny" buttons remain visible
+        const buttonColumn = rows[i].getElementsByClassName('request-buttons')[0];
+        if (match) {
+          buttonColumn.style.display = 'table-cell';  // Ensure buttons are visible
+        } else {
+          buttonColumn.style.display = 'none';  // Hide buttons with the row if needed
+        }
       }
-    }
-    
-    // Hide rows that do not match the search
-    rows[i].style.display = match ? "" : "none";
+    };
 
-    // Ensure the "Approve" and "Deny" buttons remain visible
-    const buttonColumn = rows[i].getElementsByClassName('request-buttons')[0];
-    if (match) {
-      buttonColumn.style.display = 'table-cell';  // Ensure buttons are visible
-    } else {
-      buttonColumn.style.display = 'none';  // Hide buttons with the row if needed
+    // Phone number formatting function
+    function formatPhoneNumber(phoneNumber) {
+      const cleaned = ('' + phoneNumber).replace(/\D/g, ''); // Remove all non-digits
+      const match = cleaned.match(/^(\d{3})(\d{3})(\d{4})$/);
+      if (match) {
+        return `(${match[1]}) ${match[2]}-${match[3]}`;
+      }
+      return phoneNumber; // Return the original value if it's invalid
     }
-  }
-};
 
+    // Apply phone number formatting to the table after page load
+    document.addEventListener("DOMContentLoaded", function() {
+      const phoneCells = document.querySelectorAll('.phone-cell');
+      phoneCells.forEach(cell => {
+        const phone = cell.textContent.trim();
+        cell.textContent = formatPhoneNumber(phone);
+      });
+    });
 
     // Approve booking
     document.querySelectorAll('.approve').forEach(button => {
@@ -383,28 +402,29 @@ footer {
         }
       });
     });
+
     // Add event listeners to the rows for displaying the modal on click
     document.querySelectorAll('.clickable-row').forEach(row => {
-  row.addEventListener('click', () => {
-    const info = JSON.parse(row.getAttribute('data-info'));
-    document.getElementById('modalName').textContent = info.name;
-    document.getElementById('modalEmail').textContent = info.email;
-    document.getElementById('modalPhone').textContent = info.phone;
-    document.getElementById('modalService').textContent = info.service;
-    document.getElementById('modalDateTime').textContent = `${info.date} at ${info.time}`;
-    document.getElementById('modalNotes').textContent = info.notes;
+      row.addEventListener('click', () => {
+        const info = JSON.parse(row.getAttribute('data-info'));
+        document.getElementById('modalName').textContent = info.name;
+        document.getElementById('modalEmail').textContent = info.email;
+        document.getElementById('modalPhone').textContent = info.phone;
+        document.getElementById('modalService').textContent = info.service;
+        document.getElementById('modalDateTime').textContent = `${info.date} at ${info.time}`;
+        document.getElementById('modalNotes').textContent = info.notes;
 
-    // Show the modal and overlay
-    document.getElementById('modalOverlay').style.display = 'block';
-    document.getElementById('notesModal').style.display = 'block';
-  });
-});
+        // Show the modal and overlay
+        document.getElementById('modalOverlay').style.display = 'block';
+        document.getElementById('notesModal').style.display = 'block';
+      });
+    });
 
-function hideModal() {
-  document.getElementById('notesModal').style.display = 'none';
-  document.getElementById('modalOverlay').style.display = 'none';
-}
+    function hideModal() {
+      document.getElementById('notesModal').style.display = 'none';
+      document.getElementById('modalOverlay').style.display = 'none';
+    }
+</script>
 
-  </script>
 </body>
 </html>
