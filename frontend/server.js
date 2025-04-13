@@ -100,7 +100,7 @@ app.get('/logout', (req, res) => {
 app.get('/bookings/guest', (req, res) => res.render('bookings/bookingsGuest'));
 
 // Admin Dashboard (Upcoming & Past)
-app.get('/bookings/dashboard', async (req, res) => {
+app.get('/bookings/dashboard', isAdmin, async (req, res) => {
     try {
         const response = await axios.get('http://localhost:5050/api/booking');
         const bookingsData = response.data.bookings;
@@ -143,6 +143,7 @@ app.get('/bookings/dashboard', async (req, res) => {
         });
     }
 });
+
 
 
 
@@ -228,3 +229,5 @@ app.get('/specialties/realEstate', (req, res) => res.render('specialties/realEst
 const PORT = process.env.PORT || 8080;
 app.listen(PORT, () => {
     console.log(`Server running at http://localhost:${PORT}/`);
+});
+
