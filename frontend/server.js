@@ -6,6 +6,7 @@ const methodOverride = require('method-override');
 const bodyParser = require('body-parser');
 const path = require('path');
 
+
 const app = express();
 
 /* ---------------------- Middleware ---------------------- */
@@ -98,38 +99,55 @@ app.get('/logout', (req, res) => {
 // Bookings Guest View
 app.get('/bookings/guest', (req, res) => res.render('bookings/bookingsGuest'));
 
-// Admin Dashboard
 // Admin Dashboard (Upcoming & Past)
 app.get('/bookings/dashboard', async (req, res) => {
     try {
         const response = await axios.get('http://localhost:5050/api/booking');
-        const bookingsData = response.data;
+        const bookingsData = response.data.bookings;
 
-        // Filter upcoming and past appointments
-        const upcomingAppointments = bookingsData.filter(booking => {
-            const bookingDate = new Date(booking.date);
-            const currentDate = new Date();
-            return bookingDate >= currentDate;
-        });
+        if (!Array.isArray(bookingsData)) {
+            throw new Error('Expected bookingsData to be an array, but got: ' + typeof bookingsData);
+        }
 
-        const pastAppointments = bookingsData.filter(booking => {
-            const bookingDate = new Date(booking.date);
-            const currentDate = new Date();
-            return bookingDate < currentDate;
-        });
+        const currentDate = new Date();
+
+        // Use ISO format for reliable comparisons
+        const upcomingAppointments = bookingsData.filter(booking => new Date(booking.dateTimeISO) >= currentDate);
+        const pastAppointments = bookingsData.filter(booking => new Date(booking.dateTimeISO) < currentDate);
+
+        const events = bookingsData.map(booking => {
+            if (!booking.dateTimeISO) {
+                console.error('Missing dateTimeISO for booking:', booking);
+                return null;
+            }
+
+            return {
+                title: `${booking.firstName} ${booking.lastName} - ${booking.serviceType}`,
+                start: booking.dateTimeISO, // ISO 8601 format for FullCalendar
+                color: booking.status === 'approved' ? '#90ee90' : '#ccc',
+            };
+        }).filter(event => event !== null);
 
         res.render('bookings/bookingsDash', {
             upcomingAppointments,
-            pastAppointments
+            pastAppointments,
+            events
         });
 
     } catch (error) {
         console.error('Error fetching bookings data:', error.message);
-        res.render('bookings/bookingsDash', { upcomingAppointments: [], pastAppointments: [] });
+        res.render('bookings/bookingsDash', {
+            upcomingAppointments: [],
+            pastAppointments: [],
+            events: []
+        });
     }
 });
 
-// Booking Requests
+
+
+  
+
 app.get('/bookings/requests', isAdmin, async (req, res) => {
     try {
         const response = await axios.get('http://localhost:5050/api/booking-requests');
@@ -162,6 +180,10 @@ app.get('/bookings/requests', isAdmin, async (req, res) => {
         res.render('bookings/bookingsRequest', { bookingRequests: [] });
     }
 });
+
+
+
+
 
 // Approve Booking
 app.post('/bookings/approve/:id', async (req, res) => {
@@ -206,4 +228,3 @@ app.get('/specialties/realEstate', (req, res) => res.render('specialties/realEst
 const PORT = process.env.PORT || 8080;
 app.listen(PORT, () => {
     console.log(`Server running at http://localhost:${PORT}/`);
-});
