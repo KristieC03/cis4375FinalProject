@@ -10,7 +10,7 @@ from maincreds import Creds
 # ---- Start flask app ----
 app = Flask(__name__)
 CORS(app, resources={r"/*": {"origins": "*"}}, supports_credentials=True,
-     allow_headers=["Content-Type", "Authorization"], methods=["GET", "OPTIONS"])
+     allow_headers=["Content-Type", "Authorization"], methods=["GET", "POST", "OPTIONS"])
 app.secret_key = 'supersecretkey'
 
 # ---- LOGIN API (Basic Auth with bycrypt) ----
@@ -147,6 +147,45 @@ def create_booking():
             "error": str(e)
         }), 500
 
+# --- Booked Times API ---
+@app.route('/api/booked-times', methods=['GET'])
+def get_booked_times():
+    date = request.args.get('date')  # Expecting format 'YYYY-MM-DD'
+
+    if not date:
+        return jsonify({"error": "Missing 'date' query parameter"}), 400
+
+    try:
+        myCreds = Creds()
+        conn = create_connection(myCreds.connectionstring, myCreds.username, myCreds.passwd, myCreds.dataBase)
+
+        if conn is None:
+            return jsonify({"error": "Database connection failed"}), 500
+
+        # Query to fetch only approved bookings for the selected date
+        sql = """
+            SELECT TIME_FORMAT(Booking_Date, '%h:%i %p') AS time
+            FROM Booking
+            WHERE DATE(Booking_Date) = %s AND Booking_Status = 'approved';
+        """
+        cursor = conn.cursor(dictionary=True)
+        cursor.execute(sql, (date,))
+        results = cursor.fetchall()
+
+        # Extract only the time values
+        taken_times = [row['time'] for row in results]
+
+        return jsonify({
+            "success": True,
+            "takenTimes": taken_times
+        })
+
+    except Exception as e:
+        print("Error fetching booked times:", e)
+        return jsonify({
+            "success": False,
+            "error": str(e)
+        }), 500
 
 
 @app.route('/api/booking', methods=['GET'])
