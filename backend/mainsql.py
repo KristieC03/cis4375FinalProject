@@ -1,38 +1,56 @@
 import mysql.connector
 from mysql.connector import Error
 
-# This function is used to create a connection
 def create_connection(hostname, uname, pwd, dbname):
+    """
+    Establishes a connection to the MySQL database.
+    """
     connection = None
     try:
         connection = mysql.connector.connect(
-            host= hostname,
-            user= uname,
-            password= pwd,
-            database= dbname
+            host=hostname,
+            user=uname,
+            password=pwd,
+            database=dbname
         )
-        print('connection successful')
+        print('Connection successful')
     except Error as e:
-        print('connection unsuccessful, error is :', e)
+        print('Connection unsuccessful. Error:', e)
     return connection
 
-# This function is used to execute query to update database (insert, update and delete statement)
-def execute_query(conn, query):
+
+def execute_query(conn, query, params=None):
+    """
+    Executes INSERT, UPDATE, DELETE queries.
+    """
     cursor = conn.cursor()
     try:
-        cursor.execute(query)
+        if params:
+            cursor.execute(query, params)
+        else:
+            cursor.execute(query)
         conn.commit()
         print('Query executed successfully')
     except Error as e:
-        print('Error occured is: ', e)
-# This function is used to execute query to retrive records from database (select statement)
-def execute_read_query(conn, query):
-    cursor = conn.cursor(dictionary = True)
-    rows = None
+        print('Error occurred:', e)
+    finally:
+        cursor.close()
+
+
+def execute_read_query(conn, query, params=None):
+    """
+    Executes SELECT queries and returns the result as a list of dictionaries.
+    """
+    cursor = conn.cursor(dictionary=True)
     try:
-        cursor.execute(query)
-        rows = cursor.fetchall()
-        return rows
+        if params:
+            cursor.execute(query, params)
+        else:
+            cursor.execute(query)
+        return cursor.fetchall()
     except Error as e:
-        print('Error occured is : ', e)
+        print('Error occurred:', e)
+        return None
+    finally:
+        cursor.close()
 
