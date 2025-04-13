@@ -3,6 +3,7 @@ from flask_cors import CORS, cross_origin
 from flask_apscheduler import APScheduler
 from datetime import datetime
 import bcrypt
+import pytz
 
 from mainsql import create_connection, execute_read_query, execute_query
 from maincreds import Creds
@@ -107,13 +108,15 @@ def create_booking():
     phone = data.get('phone')
     service = data.get('serviceType')
     notes = data.get('notes')
-    booking_date = data.get('Booking_Date')
-    booking_time = data.get('Booking_Time')
-
-    # Combine date and time to a full datetime string
-    booking_datetime = f"{booking_date} {booking_time}"
+    booking_datetime_iso = data.get('booking_datetime')  # ISO string sent from frontend
 
     try:
+        # Convert ISO string to datetime object (make sure timezone is handled)
+        booking_datetime_obj = datetime.fromisoformat(booking_datetime_iso.replace("Z", "+00:00"))
+
+        # Format it to store in MySQL as 'YYYY-MM-DD HH:MM:SS'
+        booking_datetime = booking_datetime_obj.strftime('%Y-%m-%d %H:%M:%S')
+
         myCreds = Creds()
         conn = create_connection(myCreds.connectionstring, myCreds.username, myCreds.passwd, myCreds.dataBase)
         cursor = conn.cursor()
@@ -124,12 +127,12 @@ def create_booking():
             VALUES (%s, %s, %s, %s)
         """
         cursor.execute(insert_client_sql, (first_name, last_name, email, phone))
-        client_id = cursor.lastrowid  # Get the auto-generated Client_ID
+        client_id = cursor.lastrowid
 
-        # Insert into Booking table
+        # Insert into Booking table, including Booking_Submitted
         insert_booking_sql = """
-            INSERT INTO Booking (Client_ID, Booking_Date, Booking_Service, Booking_Status, Booking_Notes)
-            VALUES (%s, %s, %s, %s, %s)
+            INSERT INTO Booking (Client_ID, Booking_Date, Booking_Service, Booking_Status, Booking_Notes, Booking_Submitted)
+            VALUES (%s, %s, %s, %s, %s, NOW())  -- 'NOW()' inserts the current timestamp
         """
         cursor.execute(insert_booking_sql, (client_id, booking_datetime, service, 'pending', notes))
         conn.commit()
@@ -140,52 +143,13 @@ def create_booking():
         }), 201
 
     except Exception as e:
-        print("Error in booking:", e)
+        print("❌ Error in booking:", e)
         return jsonify({
             "success": False,
             "message": "Failed to create booking.",
             "error": str(e)
         }), 500
 
-# --- Booked Times API ---
-@app.route('/api/booked-times', methods=['GET'])
-def get_booked_times():
-    date = request.args.get('date')  # Expecting format 'YYYY-MM-DD'
-
-    if not date:
-        return jsonify({"error": "Missing 'date' query parameter"}), 400
-
-    try:
-        myCreds = Creds()
-        conn = create_connection(myCreds.connectionstring, myCreds.username, myCreds.passwd, myCreds.dataBase)
-
-        if conn is None:
-            return jsonify({"error": "Database connection failed"}), 500
-
-        # Query to fetch only approved bookings for the selected date
-        sql = """
-            SELECT TIME_FORMAT(Booking_Date, '%h:%i %p') AS time
-            FROM Booking
-            WHERE DATE(Booking_Date) = %s AND Booking_Status = 'approved';
-        """
-        cursor = conn.cursor(dictionary=True)
-        cursor.execute(sql, (date,))
-        results = cursor.fetchall()
-
-        # Extract only the time values
-        taken_times = [row['time'] for row in results]
-
-        return jsonify({
-            "success": True,
-            "takenTimes": taken_times
-        })
-
-    except Exception as e:
-        print("Error fetching booked times:", e)
-        return jsonify({
-            "success": False,
-            "error": str(e)
-        }), 500
 
 
 @app.route('/api/booking', methods=['GET'])
@@ -199,21 +163,62 @@ def api_bookings_all():
     c.Client_LName AS lastName,
     c.Client_Email AS email,
     c.Client_Phone AS phone,
-    DATE_FORMAT(b.Booking_Date, '%Y-%m-%d') AS date,
-    TIME_FORMAT(b.Booking_Date, '%h:%i %p') AS time,
+    b.Booking_Date AS booking_datetime,
     b.Booking_Service AS serviceType,
     b.Booking_Status AS status,
     b.Booking_Notes AS notes
-FROM Booking b
-JOIN Clients c ON b.Client_ID = c.Client_ID;
-"""
-    bookings = execute_read_query(conn, sql)
-    # Filter out the approved bookings' dates
-    approved_dates = [booking['date'] for booking in bookings if booking['status'] == 'approved']
+    FROM Booking b
+    JOIN Clients c ON b.Client_ID = c.Client_ID;
+    """
+    raw_bookings = execute_read_query(conn, sql)
+
+    bookings = []
+    approved_dates = []
+
+    # Define timezone
+    utc = pytz.utc
+    local_tz = pytz.timezone('America/Chicago')
+
+    for b in raw_bookings:
+        dt_utc = b['booking_datetime']
+        dt_local = utc.localize(dt_utc).astimezone(local_tz)
+
+        # Format for display
+        formatted_date = dt_local.strftime('%B %d, %Y')  # Example: April 14, 2025
+        formatted_time = dt_local.strftime('%I:%M %p')   # Example: 03:00 PM
+
+        # Format for FullCalendar (ISO 8601)
+        iso_datetime = dt_local.strftime('%Y-%m-%dT%H:%M:%S')
+
+        # Format phone number (###) ###-####
+        raw_phone = b['phone']
+        formatted_phone = f"({raw_phone[:3]}) {raw_phone[3:6]}-{raw_phone[6:]}" if raw_phone and len(raw_phone) == 10 else raw_phone
+
+        bookings.append({
+            "firstName": b['firstName'],
+            "lastName": b['lastName'],
+            "email": b['email'],
+            "phone": formatted_phone,
+            "date": formatted_date,
+            "time": formatted_time,
+            "dateTimeISO": iso_datetime,
+            "serviceType": b['serviceType'],
+            "status": b['status'],
+            "notes": b['notes']
+        })
+
+        if b['status'] == 'approved':
+            approved_dates.append(iso_datetime)
+
     return jsonify({
         "bookings": bookings,
-        "approved_dates": approved_dates  # Sending approved booking dates to the frontend
+        "approved_dates": approved_dates
     })
+
+
+
+from datetime import datetime
+import pytz
 
 @app.route('/api/booking-requests', methods=['GET'])
 def get_pending_bookings():
@@ -240,6 +245,31 @@ def get_pending_bookings():
     """
     results = execute_read_query(conn, sql)
     return jsonify(results)
+
+
+@app.route('/api/approved-bookings', methods=['GET'])
+def get_approved_bookings():
+    myCreds = Creds()
+    conn = create_connection(myCreds.connectionstring, myCreds.username, myCreds.passwd, myCreds.dataBase)
+
+    if conn is None:
+        return jsonify({"error": "Database connection failed"}), 500
+
+    sql = """
+        SELECT Booking_Date 
+        FROM Booking 
+        WHERE Booking_Status = 'approved';
+    """
+
+    results = execute_read_query(conn, sql)
+
+    # Convert Booking_Date to ISO format for easier frontend handling
+    formatted_results = [row['Booking_Date'].isoformat() for row in results if row['Booking_Date']]
+
+    return jsonify(formatted_results)
+
+
+
 
 # ---- APPROVE A BOOKING ----
 @app.route('/api/booking-requests/approve/<booking_id>', methods=['POST'])
@@ -386,4 +416,3 @@ scheduler.add_job(
 
 if __name__ == '__main__':
     app.run(debug=True, port=5050, use_reloader=False)
-
