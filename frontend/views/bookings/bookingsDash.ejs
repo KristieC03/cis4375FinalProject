@@ -6,8 +6,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <link href="https://fonts.googleapis.com/css2?family=Josefin+Sans:wght@300;500;700&display=swap" rel="stylesheet">
   <link href="https://cdn.jsdelivr.net/npm/fullcalendar@5.11.3/main.min.css" rel="stylesheet">
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
-  <style>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">  <style>
     * { margin: 0; padding: 0; box-sizing: border-box; }
     html, body {
       font-family: 'Josefin Sans', sans-serif;
@@ -131,218 +130,189 @@
     </section>
 
     <section>
-      <h2><i class="fas fa-calendar-alt"></i> Upcoming Appointments</h2>
-      <div class="search-container">
-        <input type="text" id="upcomingSearch" placeholder="Search upcoming appointments..." onkeyup="searchAppointments('upcoming')">
-      </div>
-      <table class="appointment-table" id="upcomingTable" data-sort-dir="asc">
-        <thead>
-          <tr>
-            <th>Name</th>
-            <th>Email</th>
-            <th style="white-space: nowrap; width: 140px;">Phone</th>
-            <th onclick="sortTable('upcomingTable', 3)">Date<span class="arrow">▲</span></th>
-            <th>Time</th>
-            <th>Service</th>
-            <th>Notes</th>
-          </tr>
-        </thead>
-        <tbody>
-          <% upcomingAppointments.forEach(app => { %>
-            <tr>
-              <td><%= app.firstName %> <%= app.lastName %></td>
-              <td><%= app.email %></td>
-              <td><%= app.phone %></td>
-              <td><%= new Date(app.date).toLocaleDateString('en-US', {
-  weekday: 'long',
-  year: 'numeric',
-  month: 'long',
-  day: 'numeric'
-}) %></td>
-              <td><%= app.time %> <%= app.period %></td>
-              <td><%= app.serviceType %></td>
-              <td><%= app.notes || '—' %></td>
-            </tr>
-          <% }) %>
-        </tbody>
-      </table>
-    </section>
-
-    <section>
-      <h2><i class="fas fa-history"></i> Past Appointments</h2>
-      <div class="search-container">
-        <input type="text" id="pastSearch" placeholder="Search past appointments..." onkeyup="searchAppointments('past')">
-      </div>
-      <table class="appointment-table" id="pastTable" data-sort-dir="asc">
-        <thead>
-          <tr>
-            <th>Name</th>
-            <th>Email</th>
-            <th style="white-space: nowrap; width: 140px;">Phone</th>
-            <th onclick="sortTable('pastTable', 3)">Date<span class="arrow">▲</span></th>
-            <th>Time</th>
-            <th>Service</th>
-            <th>Notes</th>
-          </tr>
-        </thead>
-        <tbody>
-          <% pastAppointments.forEach(app => { %>
-            <tr>
-              <td><%= app.firstName %> <%= app.lastName %></td>
-              <td><%= app.email %></td>
-              <td><%= app.phone %></td>
-              <td><%= new Date(app.date).toLocaleDateString('en-US', {
-  weekday: 'long',
-  year: 'numeric',
-  month: 'long',
-  day: 'numeric'
-}) %></td>
-              <td><%= app.time %> <%= app.period %></td>
-              <td><%= app.serviceType %></td>
-              <td><%= app.notes || '—' %></td>
-            </tr>
-          <% }) %>
-        </tbody>
-      </table>
-    </section>
+  <h2><i class="fas fa-calendar-alt"></i> Upcoming Appointments</h2>
+  <div class="search-container">
+    <input type="text" id="upcomingSearch" placeholder="Search upcoming appointments..." onkeyup="searchAppointments('upcoming')">
   </div>
+  <table class="appointment-table" id="upcomingTable" data-sort-dir="asc">
+    <thead>
+      <tr>
+        <th>Name</th>
+        <th>Email</th>
+        <th style="white-space: nowrap; width: 140px;">Phone</th>
+        <th onclick="sortTable('upcomingTable', 3)">Date<span class="arrow">▲</span></th>
+        <th>Time</th>
+        <th>Service</th>
+        <th>Notes</th>
+      </tr>
+    </thead>
+    <tbody>
+      <% upcomingAppointments.forEach(app => { %>
+        <tr>
+          <td style="white-space: nowrap;"><%= app.firstName %> <%= app.lastName %></td>
+          <td style="white-space: nowrap;"><%= app.email %></td>
+          <td><%= app.phone ? app.phone.replace(/\D/g, '').replace(/(\d{3})(\d{3})(\d{4})/, '($1) $2-$3') : '—' %></td>
+          <td><%= app.date %></td>
+          <td><%= app.time %></td>
+          <td><%= app.serviceType %></td>
+          <td><%= app.notes || '—' %></td>
+        </tr>
+      <% }) %>
+    </tbody>
+  </table>
+</section>
 
-  <div id="appointmentModal">
-    <div class="modal-content">
-      <button class="close-button" onclick="closeModal()">&times;</button>
-      <h3 id="modalDateTitle"></h3>
-      <div id="modalAppointmentsList"></div>
-    </div>
+<section>
+  <h2><i class="fas fa-history"></i> Past Appointments</h2>
+  <div class="search-container">
+    <input type="text" id="pastSearch" placeholder="Search past appointments..." onkeyup="searchAppointments('past')">
   </div>
+  <table class="appointment-table" id="pastTable" data-sort-dir="asc">
+    <thead>
+      <tr>
+        <th>Name</th>
+        <th>Email</th>
+        <th style="white-space: nowrap; width: 140px;">Phone</th>
+        <th onclick="sortTable('pastTable', 3)">Date<span class="arrow">▲</span></th>
+        <th>Time</th>
+        <th>Service</th>
+        <th>Notes</th>
+      </tr>
+    </thead>
+    <tbody>
+      <% pastAppointments.forEach(app => { %>
+        <tr>
+          <td style="white-space: nowrap;"><%= app.firstName %> <%= app.lastName %></td>
+          <td style="white-space: nowrap;"><%= app.email %></td>
+          <td><%= app.phone ? app.phone.replace(/\D/g, '').replace(/(\d{3})(\d{3})(\d{4})/, '($1) $2-$3') : '—' %></td>
+          <td style="white-space: nowrap;"><%= app.date %></td>
+          <td style="white-space: nowrap;"><%= app.time %></td>
+          <td><%= app.serviceType %></td>
+          <td><%= app.notes || '—' %></td>
+        </tr>
+      <% }) %>
+    </tbody>
+  </table>
+</section>
 
-  <%- include('../../partials/footer') %>
+</div>
+
+<div id="appointmentModal">
+  <div class="modal-content">
+    <button class="close-button" onclick="closeModal()">&times;</button>
+    <h3 id="modalDateTitle"></h3>
+    <div id="modalAppointmentsList"></div>
+  </div>
+</div>
+
+<%- include('../../partials/footer') %>
+
 
   <script src="https://cdn.jsdelivr.net/npm/fullcalendar@5.11.3/main.min.js"></script>
-  <script>
-    const allAppointments = <%- JSON.stringify([ 
-      ...upcomingAppointments.map(app => ({
-        name: `${app.firstName} ${app.lastName}`,
-        date: app.date,
-        time: `${app.time} ${app.period}`,
-        service: app.serviceType,
-        email: app.email,
-        phone: app.phone,
-        notes: app.notes || '—',
-        type: "Upcoming"
-      })),
-      ...pastAppointments.map(app => ({
-        name: `${app.firstName} ${app.lastName}`,
-        date: app.date,
-        time: `${app.time} ${app.period}`,
-        service: app.serviceType,
-        email: app.email,
-        phone: app.phone,
-        notes: app.notes || '—',
-        type: "Past"
-      }))
-    ]) %>;
+<script>
+  const allAppointments = <%- JSON.stringify([...upcomingAppointments, ...pastAppointments]) %>;
+  const calendarEvents = <%- JSON.stringify(events) %>;
 
-    document.addEventListener("DOMContentLoaded", function () {
-      const calendarEl = document.getElementById("calendar");
-      const calendarTitle = document.getElementById("calendar-title");
+  document.addEventListener("DOMContentLoaded", function () {
+    const calendarEl = document.getElementById("calendar");
+    const calendarTitle = document.getElementById("calendar-title");
 
-      const calendar = new FullCalendar.Calendar(calendarEl, {
-        initialView: 'dayGridMonth',
-        headerToolbar: {
-          left: 'prev,next today',
-          center: '', // hides FullCalendar title
-          right: ''
-        },
-        themeSystem: 'standard',
+    const calendar = new FullCalendar.Calendar(calendarEl, {
+      initialView: 'dayGridMonth',
+      headerToolbar: {
+        left: 'prev,next today',
+        center: '',
+        right: ''
+      },
+      themeSystem: 'standard',
 
-        // ✅ Custom month title logic
-        datesSet: function () {
-          const currentDate = calendar.getDate();
-          const month = currentDate.toLocaleString('default', { month: 'long' });
-          const year = currentDate.getFullYear();
-          calendarTitle.textContent = `${month} ${year}`;
-        },
+      datesSet: function () {
+        const currentDate = calendar.getDate();
+        const month = currentDate.toLocaleString('default', { month: 'long' });
+        const year = currentDate.getFullYear();
+        calendarTitle.textContent = `${month} ${year}`;
+      },
 
-        dateClick: function (info) {
-          const clickedDate = info.dateStr;
-          const matchingAppointments = allAppointments.filter(app => app.date === clickedDate);
-          if (matchingAppointments.length > 0) {
-            document.getElementById("modalDateTitle").innerText = "Appointments for " + clickedDate;
-            const listEl = document.getElementById("modalAppointmentsList");
-            listEl.innerHTML = "";
-            matchingAppointments.forEach(app => {
-              listEl.innerHTML += `
-                <div style="margin-bottom: 15px; padding: 10px; border: 1px solid #ccc; border-radius: 6px;">
-                  <strong>${app.name}</strong><br>
-                  Time: ${app.time}<br>
-                  Service: ${app.service}<br>
-                  Email: ${app.email}<br>
-                  Phone: ${app.phone}<br>
-                  Notes: ${app.notes}
-                </div>`;
-            });
-            document.getElementById("appointmentModal").style.display = "flex";
-          } else {
-            alert("No appointments for this date.");
-          }
-        },
+      dateClick: function (info) {
+        const clickedDate = info.dateStr;
 
-        events: allAppointments.map(app => ({
-          title: `${app.name} - ${app.service}`,
-          start: app.date,
-          color: app.type === "Upcoming" ? "#90ee90" : "#ccc"
-        }))
-      });
+        const matchingAppointments = allAppointments.filter(app => {
+          const date = new Date(app.dateTimeISO).toISOString().split('T')[0];
+          return date === clickedDate;
+        });
 
-      calendar.render();
+        if (matchingAppointments.length > 0) {
+          document.getElementById("modalDateTitle").innerText = "Appointments for " + clickedDate;
+          const listEl = document.getElementById("modalAppointmentsList");
+          listEl.innerHTML = "";
+          matchingAppointments.forEach(app => {
+            listEl.innerHTML += `
+              <div style="margin-bottom: 15px; padding: 10px; border: 1px solid #ccc; border-radius: 6px;">
+                <strong>${app.firstName} ${app.lastName}</strong><br>
+                Time: ${app.time}<br>
+                Service: ${app.serviceType}<br>
+                Email: ${app.email}<br>
+                Phone: ${app.phone}<br>
+                Notes: ${app.notes || '—'}
+              </div>`;
+          });
+          document.getElementById("appointmentModal").style.display = "flex";
+        } else {
+          alert("No appointments for this date.");
+        }
+      },
+
+      events: calendarEvents
     });
 
-    function closeModal() {
-      document.getElementById("appointmentModal").style.display = "none";
-    }
+    calendar.render();
+  });
 
-    function searchAppointments(type) {
-      const inputId = type === 'upcoming' ? 'upcomingSearch' : 'pastSearch';
-      const tableId = type === 'upcoming' ? 'upcomingTable' : 'pastTable';
-      const searchInput = document.getElementById(inputId).value.toLowerCase();
-      const table = document.getElementById(tableId);
-      const rows = table.getElementsByTagName('tr');
-      for (let i = 1; i < rows.length; i++) {
-        const cells = rows[i].getElementsByTagName('td');
-        let match = false;
-        for (let j = 0; j < cells.length; j++) {
-          if (cells[j].textContent.toLowerCase().includes(searchInput)) {
-            match = true;
-            break;
-          }
+  function closeModal() {
+    document.getElementById("appointmentModal").style.display = "none";
+  }
+
+  function searchAppointments(type) {
+    const inputId = type === 'upcoming' ? 'upcomingSearch' : 'pastSearch';
+    const tableId = type === 'upcoming' ? 'upcomingTable' : 'pastTable';
+    const searchInput = document.getElementById(inputId).value.toLowerCase();
+    const table = document.getElementById(tableId);
+    const rows = table.getElementsByTagName('tr');
+    for (let i = 1; i < rows.length; i++) {
+      const cells = rows[i].getElementsByTagName('td');
+      let match = false;
+      for (let j = 0; j < cells.length; j++) {
+        if (cells[j].textContent.toLowerCase().includes(searchInput)) {
+          match = true;
+          break;
         }
-        rows[i].style.display = match ? '' : 'none';
       }
+      rows[i].style.display = match ? '' : 'none';
     }
+  }
 
-    // ✅ ADD THIS SORT FUNCTION BACK:
-    function sortTable(tableId, colIndex) {
-      const table = document.getElementById(tableId);
-      const rows = Array.from(table.rows).slice(1);
-      let asc = table.getAttribute("data-sort-dir") !== "desc";
+  function sortTable(tableId, colIndex) {
+    const table = document.getElementById(tableId);
+    const rows = Array.from(table.rows).slice(1);
+    let asc = table.getAttribute("data-sort-dir") !== "desc";
 
-      rows.sort((a, b) => {
-        const aText = a.cells[colIndex].textContent.trim().toLowerCase();
-        const bText = b.cells[colIndex].textContent.trim().toLowerCase();
-        return asc ? aText.localeCompare(bText) : bText.localeCompare(aText);
-      });
+    rows.sort((a, b) => {
+      const aText = a.cells[colIndex].textContent.trim().toLowerCase();
+      const bText = b.cells[colIndex].textContent.trim().toLowerCase();
+      return asc ? aText.localeCompare(bText) : bText.localeCompare(aText);
+    });
 
-      const tbody = table.querySelector("tbody");
-      rows.forEach(row => tbody.appendChild(row));
-      table.setAttribute("data-sort-dir", asc ? "desc" : "asc");
+    const tbody = table.querySelector("tbody");
+    rows.forEach(row => tbody.appendChild(row));
+    table.setAttribute("data-sort-dir", asc ? "desc" : "asc");
 
-      // Update sort arrow indicators
-      const headers = table.querySelectorAll("th");
-      headers.forEach((th, i) => {
-        const arrow = th.querySelector(".arrow");
-        if (arrow) arrow.textContent = i === colIndex ? (asc ? "▼" : "▲") : "▲";
-      });
-    }
-  </script>
+    const headers = table.querySelectorAll("th");
+    headers.forEach((th, i) => {
+      const arrow = th.querySelector(".arrow");
+      if (arrow) arrow.textContent = i === colIndex ? (asc ? "▼" : "▲") : "▲";
+    });
+  }
+</script>
+
 </body>
 </html>
